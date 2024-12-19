@@ -33,39 +33,42 @@ const registerUser = async (req, res) => {
                 const image_local_path = req.files.avatar[0].path;
                 deleteFile(image_local_path);
             }
-            return res.status(400).json({ error: "User already exists.Try with another email" , success: false });
+            return res.status(409).json({ error: "User already exists.Try with another email" , success: false });
         }
-
-        // accept avatar file from req.files and check if we get files , then do we get files.avatar
-        if (!req.files || !req.files.avatar) {
-            return res.status(400).json({ error: "Could not access the avatar image file" , success: false });
-        }
-        // get the avatar file from req.files and save it to cloudinary and get the url
-        // console.log(req.files.avatar[0]);
-        // ------------- remember to extarct out element from array and extarct path out of it too.
-        const avatarLocalFilePath = req.files.avatar[0].path;
-        let avatarResponse;
-        try {
-            avatarResponse = await uploadToCloudinary(avatarLocalFilePath);
-            if(!avatarResponse){
-                return res.status(500).json({ error: "Error while recieving response from cloudinary" , success: false });
+        let avatarResponse = null;
+        if (req.files && req.files.avatar) {
+            // accept avatar file from req.files and check if we get files , then do we get files.avatar
+            // get the avatar file from req.files and save it to cloudinary and get the url
+            // console.log(req.files.avatar[0]);
+            // ------------- remember to extarct out element from array and extarct path out of it too.
+            const avatarLocalFilePath = req.files.avatar[0].path;
+            try {
+                avatarResponse = await uploadToCloudinary(avatarLocalFilePath);
+                if (!avatarResponse) {
+                    return res.status(500).json({ error: "Error while recieving response from cloudinary", success: false });
+                }
+                // console.log(`avatarResponse: ${avatarResponse}`);
+            } catch (error) {
+                console.log(`Error in uploading image to cloudinary: ${error.message} || from user.controller.js`);
+                return res.status(500).json({ error: "Error while uploading image to cloudinary", success: false });
             }
-            // console.log(`avatarResponse: ${avatarResponse}`);
-        } catch (error) {
-            console.log(`Error in uploading image to cloudinary: ${error.message} || from user.controller.js`);
-            return res.status(500).json({ error: "Error while uploading image to cloudinary" , success: false });
         }
+        
 
         // create a new user with the details
         let user;
         try {
-            user = new User({
-                name: name,
-                email: email,
-                password: password,
-                role: role,
-                avatar_url: avatarResponse.url
-            });
+            if (!avatarResponse) {
+                user = new User({ name, email, password, role });
+            } else { 
+                user = new User({
+                    name: name,
+                    email: email,
+                    password: password,
+                    role: role,
+                    avatar_url: avatarResponse.url
+                });
+            }
         } catch (error) {
             console.log(`Error in saving the user: ${error.message} || from user.model.js`);
             return res.status(500).json({ error: "Error while creating user(1)" , success: false });
