@@ -11,12 +11,18 @@ cloudinary.config({
 // Upload a video
 export const uploadToCloudinary = async (localFilePath) => { 
     try {
+        if (!localFilePath) {
+            console.log(`No file to upload to cloudinary || from cloudinary.service.js`);
+            return null;
+        }
+            
         const result = await cloudinary.uploader.upload(localFilePath, {
             resource_type : 'auto'
         });
         console.log(`Image uploaded to cloudinary: ${result.secure_url} || from cloudinary.service.js`);
-        // fs.unlinkSync(localFilePath);
-        return result;        
+        fs.unlinkSync(localFilePath);
+
+        return result;       
     } catch (error) {
         console.log(`Error in uploading image to cloudinary: ${error.message} || from cloudinary.service.js`);
         fs.unlinkSync(localFilePath);

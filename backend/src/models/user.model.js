@@ -30,7 +30,7 @@ const userSchema = new Schema({
         default: 'user'
     },
     refreshToken: {
-        type: String
+        type: String // to be generated at time of login
     }
 
 }, { timestamps: true });
