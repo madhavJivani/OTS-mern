@@ -11,6 +11,23 @@ import { deleteFile } from '../utils/helpers.js';
  * if error: we always return a status code, a json object with a error(string) key and success(boolean).
  */
 
+const gen_tokens = async (user_id) => {
+    const user = await User.findById(user_id);
+    if (!user) {
+        console.log(`Error in generating tokens: User not found`);
+        return { accessToken: null, refreshToken: null };
+    }
+    try {
+        const accessToken = await user.generateAccessToken();
+        const refreshToken = await user.generateRefreshToken();
+
+        return { accessToken, refreshToken };
+    } catch (error) {
+        console.log(`Error in generating tokens(2): ${error.message}`);
+        return { accessToken: null, refreshToken: null };
+    }
+};
+
 const options = {
     httpOnly: true,
     secure: true,
@@ -72,7 +89,8 @@ const registerUser = async (req, res) => {
                     email: email,
                     password: password,
                     role: role,
-                    avatar_url: avatarResponse.url
+                    avatar_url: avatarResponse.url,
+                    refreshToken: null
                 });
             }
         } catch (error) {
@@ -182,23 +200,38 @@ const loginUser = async (req, res) => {
     }
 };
 
-const gen_tokens = async (user_id) => { 
-    const user = await User.findById(user_id);
-    if (!user) {
-        console.log(`Error in generating tokens: User not found`);
-        return { accessToken: null, refreshToken: null };
-    }
-    try {
-        const accessToken = await user.generateAccessToken();
-        const refreshToken = await user.generateRefreshToken();
 
-        return { accessToken, refreshToken };
+const logoutUser = async (req, res) => { 
+    try {
+        const user = req.user;
+        user.refreshToken = null;
+        try {
+            await user.save({validateBeforeSave: false});
+        } catch (error) {
+            console.log(`Error in saving the refreshToken to database: ${error.message} for logout || from user.controller.js`);
+            return res.status(500).json({ error: "Error while saving refreshToken", success: false });
+        }
+
+        return res
+            .status(200)
+            .clearCookie('refreshToken')
+            .clearCookie('accessToken')
+            .json({ message: "User logged out successfully", success: true });
+
     } catch (error) {
-        console.log(`Error in generating tokens(2): ${error.message}`);
-        return { accessToken: null, refreshToken: null };
+        console.log(`Error in logoutUser: ${error.message} || from user.controller.js`);
+        res.
+            status(500)
+            .json({
+                error: "Internal Server Error",
+                success: false
+            });
+        
     }
 };
+
 export {
     registerUser,
-    loginUser
+    loginUser,
+    logoutUser
 };
