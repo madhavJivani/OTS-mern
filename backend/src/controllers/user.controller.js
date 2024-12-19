@@ -1,3 +1,4 @@
+import { access } from "fs";
 import { User } from "../models/user.model.js";
 import { uploadToCloudinary } from '../utils/cloudinary.service.js'
 import { deleteFile } from '../utils/helpers.js';
@@ -9,6 +10,11 @@ import { deleteFile } from '../utils/helpers.js';
  * if success: we always return a status code, a json object with a message(string) key and success(boolean). 
  * if error: we always return a status code, a json object with a error(string) key and success(boolean).
  */
+
+const options = {
+    httpOnly: true,
+    secure: true,
+}
 
 const registerUser = async (req, res) => { 
     try {
@@ -86,13 +92,18 @@ const registerUser = async (req, res) => {
             return res.status(500).json({ error: "Error while creating user(3)" , success: false });
         }
         // return the response flowing the specific format
+        
+        const res_user = await User.findById(user._id).select('-password -refreshToken');
+        if (!res_user) {
+            return res.status(500).json({ error: "Error while creating user(4)" , success: false });
+        }
 
         return res
             .status(201)
             .json({
                 message: "User registered successfully",
                 success: true,
-                user: user
+                user: res_user
             });
 
 
@@ -108,4 +119,86 @@ const registerUser = async (req, res) => {
 };
 
 
-export { registerUser };
+const loginUser = async (req, res) => { 
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ error: "Please provide email and password", success: false });
+        }
+
+        // check if the user exists
+
+        const user = await User.findOne({ email });
+        if(!user){
+            return res.status(404).json({ error: "User not found, Email does not match", success: false });
+        }
+        
+        //check if the password matches
+        const isMatch = await user.matchPassword(password);
+        if (!isMatch) {
+            return res.status(401).json({ error: "Invalid credentials - password did not match", success: false });
+        }
+
+        // generate the access token and refresh token
+        const { accessToken, refreshToken } = await gen_tokens(user._id);
+        if (!accessToken || !refreshToken) {
+            return res.status(500).json({ error: "Error while generating tokens(1)", success: false });
+        }
+        // save the refresh token to the database
+        user.refreshToken = refreshToken;
+        try {
+            await user.save({validateBeforeSave: false});
+        } catch (error) {
+            console.log(`Error in saving the refreshToken to database: ${error.message} || from user.controller.js`);
+            return res.status(500).json({ error: "Error while saving refreshToken", success: false });
+        }
+
+        const res_user = await User.findById(user._id).select('-password -refreshToken');
+        if (!res_user) {
+            return res.status(500).json({ error: "Error while creating user(4)", success: false });
+        }
+
+        // return the response flowing the specific format
+
+        return res
+            .status(200)
+            .cookie('refreshToken', refreshToken, options)
+            .cookie('accessToken', accessToken, options)
+            .json({
+                message: "User logged in successfully",
+                success: true,
+                user: res_user
+            })
+
+    } catch (error) {
+        console.log(`Error in loginUser: ${error.message} || from user.controller.js`);
+        res.
+            status(500)
+            .json({
+                error: "Internal Server Error",
+                success: false
+            });
+        
+    }
+};
+
+const gen_tokens = async (user_id) => { 
+    const user = await User.findById(user_id);
+    if (!user) {
+        console.log(`Error in generating tokens: User not found`);
+        return { accessToken: null, refreshToken: null };
+    }
+    try {
+        const accessToken = await user.generateAccessToken();
+        const refreshToken = await user.generateRefreshToken();
+
+        return { accessToken, refreshToken };
+    } catch (error) {
+        console.log(`Error in generating tokens(2): ${error.message}`);
+        return { accessToken: null, refreshToken: null };
+    }
+};
+export {
+    registerUser,
+    loginUser
+};
