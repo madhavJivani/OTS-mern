@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { registerRequest } from '../../utils/index.js';
+import { registerRequest , loginRequest } from '../../utils/index.js';
+import { useNavigate } from "react-router-dom";
+import { loginUser } from '../../../store/func/userSlice.js'
+import { useDispatch } from 'react-redux';
 
 const Signup = () => {
     const [name, setName] = useState("");
@@ -10,6 +13,8 @@ const Signup = () => {
     const [avatar, setAvatar] = useState(null); // File input for avatar
     const [role, setRole] = useState("user"); // Default role
     const [passwordVisible, setPasswordVisible] = useState(false); // State for toggling password visibility
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -22,8 +27,15 @@ const Signup = () => {
         }
         try {
             const response = await registerRequest(formData); // Wait for the promise to resolve
-            console.log("Response from registerRequest:", response); // Now response contains the data
-            // Handle your response here, such as updating the UI or state
+            console.log("Response from registerRequest:", response);
+            const login_res = await loginRequest({ email, password });
+            console.log("Response from loginRequest:", login_res);
+            if (response.success) {
+                dispatch(loginUser(login_res.user));
+                navigate("/");
+            } else {
+                alert("Registration failed");
+            }
         } catch (error) {
             console.log("Error from registerRequest:", error.response?.data?.error || error); // Handle errors
             // Handle your error here, such as showing an error message to the user

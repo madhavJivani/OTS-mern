@@ -2,12 +2,16 @@ import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { loginRequest } from '../../utils/index.js'
-
+import { useNavigate } from "react-router-dom";
+import { loginUser } from '../../../store/func/userSlice.js'
+import { useDispatch } from 'react-redux';
 
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [passwordVisible, setPasswordVisible] = useState(false); // State for toggling password visibility
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -15,7 +19,14 @@ const Login = () => {
         // console.log("Login form data:", formData);
         // Add API call here
         const response = await loginRequest(formData);
-        console.log(`response from loginRequest:`,response);
+        console.log(`response from loginRequest:`, response);
+        
+        if (response.success) {
+            dispatch(loginUser(response.user));
+            navigate("/");
+        } else {
+            alert("Login failed");
+        }
     };
 
     const togglePasswordVisibility = () => {

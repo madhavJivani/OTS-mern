@@ -11,7 +11,7 @@ export const registerRequest = async (formData) => {
             },
             // never ignore this multipart header while sending files
         });
-        console.log(response.data);
+        // console.log(response.data);
         return response.data;
     } catch (error) {
         // console.log(error);
@@ -26,7 +26,7 @@ export const loginRequest = async (formData) => {
     try {
         // Send the login request
         const loginResponse = await axios.post(login_url, formData);
-        console.log("Login Response:", loginResponse);
+        // console.log("Login Response:", loginResponse);
         return loginResponse.data;
     } catch (loginError) {
         console.error("Login Error:", loginError);
