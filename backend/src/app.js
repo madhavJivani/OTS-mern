@@ -15,11 +15,6 @@ app.use(urlencoded({ limit: '64kb', extended: true }));
 app.use(express.static('public'));
 app.use(cookieParser());
 
-app.use((req, res, next) => {
-    console.log('Request Origin:', req.headers.origin);
-    next();
-});
-
 app.use("/api/v1/users", UserRouter);
 
 export default app;

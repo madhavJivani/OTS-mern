@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import axios from 'axios';
+import { registerRequest } from '../../utils/index.js';
 
 const Signup = () => {
     const [name, setName] = useState("");
@@ -11,42 +11,25 @@ const Signup = () => {
     const [role, setRole] = useState("user"); // Default role
     const [passwordVisible, setPasswordVisible] = useState(false); // State for toggling password visibility
 
-    const registerRequest = async (formData) => { 
-        const register_url = 'http://localhost:8000/api/v1/users/register';
-        try {
-            const response = await axios.post(register_url, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-                // never ignore this multipart header while sending files
-            });
-            console.log(response.data);
-            return response;
-        } catch (error) {
-            // console.log(error);
-            console.log(error.response.data.error); // --- perfect error msg
-            // console.log(`Error in registerUser: ${error}`);
-            return {response: error.response.data.error};
-        }
-    }
-
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         let formData;
-        console.log(`Avatar: ${avatar}`);
-        if (avatar) { 
+        // console.log(`Avatar: ${avatar}`);
+        if (avatar) {
             formData = { name, email, password, avatar, role };
-        }
-        else { 
+        } else {
             formData = { name, email, password, role };
         }
-
-        // console.log("Signup form data:", formData);
-        // console.log(name, email, password, avatar, role);
-        // Add API call here
-        const response = registerRequest(formData);
-        // console.log(response);
+        try {
+            const response = await registerRequest(formData); // Wait for the promise to resolve
+            console.log("Response from registerRequest:", response); // Now response contains the data
+            // Handle your response here, such as updating the UI or state
+        } catch (error) {
+            console.log("Error from registerRequest:", error.response?.data?.error || error); // Handle errors
+            // Handle your error here, such as showing an error message to the user
+        }
     };
+
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
