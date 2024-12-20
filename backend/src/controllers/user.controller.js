@@ -21,6 +21,14 @@ const gen_tokens = async (user_id) => {
         const accessToken = await user.generateAccessToken();
         const refreshToken = await user.generateRefreshToken();
 
+        user.refreshToken = refreshToken;
+        try {
+            await user.save({validateBeforeSave: false});
+        } catch (error) {
+            console.log(`Error in saving the refreshToken to database: ${error.message} || from user.controller.js`);
+            return { accessToken: null, refreshToken: null };
+        }
+
         return { accessToken, refreshToken };
     } catch (error) {
         console.log(`Error in generating tokens(2): ${error.message}`);
@@ -166,14 +174,6 @@ const loginUser = async (req, res) => {
         if (!accessToken || !refreshToken) {
             return res.status(500).json({ error: "Error while generating tokens(1)", success: false });
         }
-        // save the refresh token to the database
-        user.refreshToken = refreshToken;
-        try {
-            await user.save({validateBeforeSave: false});
-        } catch (error) {
-            console.log(`Error in saving the refreshToken to database: ${error.message} || from user.controller.js`);
-            return res.status(500).json({ error: "Error while saving refreshToken", success: false });
-        }
 
         const res_user = await User.findById(user._id).select('-password -refreshToken');
         if (!res_user) {
@@ -234,8 +234,138 @@ const logoutUser = async (req, res) => {
     }
 };
 
+const refreshAccessToken = async (req, res) => { 
+    try {
+        const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
+        if (!incomingRefreshToken) {
+            return res.status(401).json({ error: "Invalid refresh Token", success: false });
+        }
+
+        try {
+            const decoded = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
+            if (!decoded) {
+                return res.status(403).json({ error: "Invalid refresh Token", success: false });
+            }
+            const user = await User.findById(decoded._id);
+            if (!user) {
+                return res.status(404).json({ error: "User not found", success: false });
+            }
+            if (user.refreshToken !== incomingRefreshToken) {
+                return res.status(403).json({ error: "Refresh Token expired", success: false });
+            }
+
+            const { accessToken, refreshToken } = await gen_tokens(user._id);
+
+            if (!accessToken || !refreshToken) {
+                return res.status(500).json({ error: "Error while generating tokens(2)", success: false });
+            }
+
+            return res
+                .status(200)
+                .cookie('refreshToken', refreshToken, options)
+                .cookie('accessToken', accessToken, options)
+                .json({ message: "Access Token refreshed successfully", success: true });
+
+        } catch (error) {
+            console.log(`Error in refreshAccessToken: ${error.message} || from user.controller.js`);
+            res.
+                status(500)
+                .json({
+                    error: "Internal Server Error",
+                    success: false
+                });
+            
+        }
+        
+    } catch (error) {
+        console.log(`Error in refreshAccessToken: ${error.message} || from user.controller.js`);
+        res.
+            status(500)
+            .json({
+                error: "Internal Server Error",
+                success: false
+            });
+        
+    }
+};
+
+const changePassword = async (req, res) => { 
+    const { oldPassword, newPassword } = req.body;
+    if (!oldPassword || !newPassword) {
+        return res.status(400).json({ error: "Please provide oldPassword and newPassword", success: false });
+    }
+    const in_user = req.user;
+    if (!in_user) {
+        return res.status(404).json({ error: "Unauthorized request to change password", success: false });
+    }
+
+    const user = await User.findById(in_user._id);
+    if (!user) {
+        return res.status(404).json({ error: "User not found", success: false });
+    }
+
+    const isMatch = await user.matchPassword(oldPassword);
+    if (!isMatch) {
+        return res.status(401).json({ error: "Invalid credentials - password did not match", success: false });
+    }
+
+    user.password = newPassword;
+    try {
+        await user.save();
+    } catch (error) {
+        console.log(`Error in saving the user: ${error.message} || from user.controller.js`);
+        return res.status(500).json({ error: "Error while saving the user", success: false });
+    }
+
+    return res
+        .status(200)
+        .json({ message: "Password changed successfully", success: true });
+};
+
+const getCurrentUser = async (req, res) => {
+    const user = req.user;
+    if (!user) {
+        return res.status(404).json({ error: "User not found", success: false });
+    }
+
+    return res
+        .status(200)
+        .json({ success: true, user:user });
+};
+
+const updateUser = async (req, res) => {
+    in_user = req.user;
+    if (!in_user) {
+        return res.status(404).json({ error: "Unauthorized request to update user", success: false });
+    }
+    const user = await User.findById(in_user._id);
+    if (!user) {
+        return res.status(404).json({ error: "User not found", success: false });
+    }
+    const { name, email, role } = req.body;
+    if (!name || !email || !role) {
+        return res.status(400).json({ error: "Please provide name, email, role", success: false });
+    }
+    user.name = name;
+    user.email = email;
+    user.role = role;
+    try {
+        await user.save();
+    } catch (error) {
+        console.log(`Error in saving the user: ${error.message} || from user.controller.js`);
+        return res.status(500).json({ error: "Error while saving the user", success: false });
+    }
+    return res
+        .status(200)
+        .json({ message: "User updated successfully", success: true });
+    
+};
 export {
     registerUser,
     loginUser,
-    logoutUser
+    logoutUser,
+    refreshAccessToken,
+    changePassword,
+    getCurrentUser,
+    updateUser
 };
