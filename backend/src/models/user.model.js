@@ -22,7 +22,7 @@ const userSchema = new Schema({
     },
     avatar_url: {
         type: String, // cloudinary url
-        default:'https://res.cloudinary.com/madhav-daiict/image/upload/v1734608233/e45fmbie3a29kbmugoky.png'
+        default:'https://res.cloudinary.com/madhav-daiict/image/upload/v1734681924/rcdmth9309na2zivs0i9.png'
     },
     role: {
         type: String,

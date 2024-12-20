@@ -51,6 +51,7 @@ const registerUser = async (req, res) => {
 
         // if the email already exists
         const userExists = await User.findOne({ email });
+        console.log(req.files);
         if (userExists) {
             if (req.files && req.files.avatar) {
                 const image_local_path = req.files.avatar[0].path;

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import axios from 'axios';
 
 const Signup = () => {
     const [name, setName] = useState("");
@@ -10,9 +11,29 @@ const Signup = () => {
     const [role, setRole] = useState("user"); // Default role
     const [passwordVisible, setPasswordVisible] = useState(false); // State for toggling password visibility
 
+    const registerRequest = async (formData) => { 
+        const register_url = 'http://localhost:8000/api/v1/users/register';
+        try {
+            const response = await axios.post(register_url, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+                // never ignore this multipart header while sending files
+            });
+            console.log(response.data);
+            return response;
+        } catch (error) {
+            // console.log(error);
+            console.log(error.response.data.error); // --- perfect error msg
+            // console.log(`Error in registerUser: ${error}`);
+            return {response: error.response.data.error};
+        }
+    }
+
     const handleSubmit = (e) => {
         e.preventDefault();
         let formData;
+        console.log(`Avatar: ${avatar}`);
         if (avatar) { 
             formData = { name, email, password, avatar, role };
         }
@@ -23,6 +44,8 @@ const Signup = () => {
         console.log("Signup form data:", formData);
         console.log(name, email, password, avatar, role);
         // Add API call here
+        const response = registerRequest(formData);
+        console.log(response);
     };
 
     const handleFileChange = (e) => {

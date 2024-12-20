@@ -17,7 +17,17 @@ export const uploadToCloudinary = async (localFilePath) => {
         }
             
         const result = await cloudinary.uploader.upload(localFilePath, {
-            resource_type : 'auto'
+            resource_type: 'auto',
+            transformation: [
+                {
+                    width: 500, // Resize to 500px width
+                    height: 500, // Resize to 500px height
+                    crop: 'fill', // Crop to fill the 500x500 square area
+                    gravity: 'auto', // Automatically select the most important part of the image
+                    fetch_format: 'auto', // Optimize format (JPEG/PNG/WebP)
+                    quality: 'auto', // Optimize quality (auto-detect best quality)
+                }
+            ]
         });
         console.log(`Image uploaded to cloudinary: ${result.secure_url} || from cloudinary.service.js`);
         fs.unlinkSync(localFilePath);
