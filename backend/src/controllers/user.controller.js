@@ -30,7 +30,10 @@ const gen_tokens = async (user_id) => {
 
 const options = {
     httpOnly: true,
-    secure: true,
+    secure: false,
+    sameSite: 'Lax',
+    path: '/',
+    withCredentials: true,
 }
 
 const registerUser = async (req, res) => { 
@@ -83,7 +86,7 @@ const registerUser = async (req, res) => {
         let user;
         try {
             if (!avatarResponse) {
-                user = new User({ name, email, password, role });
+                user = new User({ name, email, password, role, refreshToken: null });
             } else { 
                 user = new User({
                     name: name,

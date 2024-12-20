@@ -22,4 +22,11 @@ router.route('/logout').post(
     logoutUser
 );
 
+router.route('/confirm').post(
+    verifyJWT,
+    (req, res) => {
+        res.json({ success: true, message: "User is authenticated" });
+    }
+);
+
 export default router;

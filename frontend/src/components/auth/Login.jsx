@@ -1,17 +1,63 @@
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import axios from "axios";  
+
+const axiosInstance = axios.create({
+    baseURL: 'http://localhost:8000', // Update if the base URL changes
+    withCredentials: true, // Ensure cookies are sent with requests
+});
 
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [passwordVisible, setPasswordVisible] = useState(false); // State for toggling password visibility
 
+    const loginRequest = async (formData) => {
+        const login_url = 'http://localhost:8000/api/v1/users/login';
+        const confirm_url = 'http://localhost:8000/api/v1/users/confirm';
+
+        try {
+            // Send the login request
+            const loginResponse = await axiosInstance.post(login_url, formData);
+            console.log("Login Response:", loginResponse);
+
+            // If login is successful, send a request to the confirm route
+            try {
+                const confirmResponse = await axiosInstance.post(confirm_url, {}, {
+                    withCredentials: true, // Ensure cookies are sent
+                });
+                console.log("Confirm Response:", confirmResponse);
+
+                return {
+                    login: loginResponse.data,
+                    confirm: confirmResponse.data,
+                };
+            } catch (confirmError) {
+                console.error("Confirm Route Error:", confirmError);
+
+                return {
+                    login: loginResponse.data,
+                    confirm: confirmError.response?.data || "Confirm route failed",
+                };
+            }
+        } catch (loginError) {
+            console.error("Login Error:", loginError);
+
+            // Return error details
+            return { response: loginError.response?.data.error || "Login failed" };
+        }
+    };
+
+
+
     const handleSubmit = (e) => {
         e.preventDefault();
         const formData = { email, password };
         console.log("Login form data:", formData);
         // Add API call here
+        const response = loginRequest(formData);
+        console.log(response);
     };
 
     const togglePasswordVisibility = () => {

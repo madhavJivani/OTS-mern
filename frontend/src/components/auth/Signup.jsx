@@ -41,11 +41,11 @@ const Signup = () => {
             formData = { name, email, password, role };
         }
 
-        console.log("Signup form data:", formData);
-        console.log(name, email, password, avatar, role);
+        // console.log("Signup form data:", formData);
+        // console.log(name, email, password, avatar, role);
         // Add API call here
         const response = registerRequest(formData);
-        console.log(response);
+        // console.log(response);
     };
 
     const handleFileChange = (e) => {
