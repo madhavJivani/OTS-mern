@@ -1,4 +1,3 @@
-import { access } from "fs";
 import { User } from "../models/user.model.js";
 import { uploadToCloudinary } from '../utils/cloudinary.service.js'
 import { deleteFile } from '../utils/helpers.js';

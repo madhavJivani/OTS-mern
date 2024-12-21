@@ -41,21 +41,14 @@ export const verifyJWT = async (req, res, next) => {
 
 export const verifyAdmin = async (req, res, next) => {
     if (req.user.role !== "admin") {
-        return res.status(403).json({ error: "Unauthorized access", success:false });
+        return res.status(403).json({ error: "Unauthorized access, Admin only", success:false });
     }
     return next();
 }
 
-export const verifyTeacher = async (req, res, next) => {
-    if (req.user.role !== "teacher") {
-        return res.status(403).json({ error: "Unauthorized access", success:false });
-    }
-    return next();
-}
-
-export const verifyUser = async (req, res, next) => {
-    if (req.user.role !== "user") {
-        return res.status(403).json({ error: "Unauthorized access", success:false });
+export const verifyTeacherOrAdmin = async (req, res, next) => {
+    if (req.user.role === "user") {
+        return res.status(403).json({ error: "Unauthorized access, Admin or Teacher only", success:false });
     }
     return next();
 }

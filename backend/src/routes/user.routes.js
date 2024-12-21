@@ -19,6 +19,9 @@ router.route('/is-authenticated').get(verifyJWT, (req, res) => {
     if (req.user) {
         return res.status(200).json({ success: true, message: "User is authenticated" });
     }
+    else { 
+        return res.status(401).json({ success: false, message: "User is not authenticated" });
+    }
 });
 
 export default router;
