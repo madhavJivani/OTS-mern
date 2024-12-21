@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { loginUser } from '../../../store/func/userSlice.js'
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-hot-toast';
-
+import { Loader } from '../index.js'
 const Signup = () => {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
@@ -14,11 +14,21 @@ const Signup = () => {
     const [avatar, setAvatar] = useState(null); // File input for avatar
     const [role, setRole] = useState("user"); // Default role
     const [passwordVisible, setPasswordVisible] = useState(false); // State for toggling password visibility
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const loader_messages = ["Crunching data...",
+        "Authenticating you...",
+        "Fetching data...",
+        "Logging you in...",
+        "Setting up your profile...",
+        "Almost there...",
+        "Finalizing registration..."];
+    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
         let formData;
         // console.log(`Avatar: ${avatar}`);
         if (avatar) {
@@ -43,6 +53,7 @@ const Signup = () => {
             console.log("Error from registerRequest:", error.response?.data?.error || error); // Handle errors
             // Handle your error here, such as showing an error message to the user
         }
+        setLoading(false);
     };
 
 
@@ -55,7 +66,8 @@ const Signup = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#101218]">
+        loading ? <Loader messages={loader_messages} interval={500}/> :
+        <div className="min-h-screen flex items-center justify-center bg-[#101218] my-8">
             <div className="bg-[#3c4352] text-[#fafafa] p-8 rounded-md shadow-md w-96">
                 <h2 className="text-2xl font-bold text-center mb-6">Sign Up</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -136,7 +148,8 @@ const Signup = () => {
                     </div>
                     <button
                         type="submit"
-                        className="w-full bg-[#6588cb] text-[#fafafa] py-2 rounded-md hover:bg-[#5774ad] transition"
+                            className="w-full bg-[#6588cb] text-[#fafafa] py-2 rounded-md hover:bg-[#5774ad] transition"
+                            disabled={loading}
                     >
                         Sign Up
                     </button>

@@ -6,16 +6,26 @@ import { useNavigate } from "react-router-dom";
 import { loginUser } from '../../../store/func/userSlice.js'
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-hot-toast';
+import { Loader} from '../index.js'
 
 const Login = () => {
+    const [loading , setLoading] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [passwordVisible, setPasswordVisible] = useState(false); // State for toggling password visibility
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
+    const loader_messages = ["Crunching data...",
+        "Authenticating you...",
+        "Fetching data...",
+        "Logging you in...",
+        "Verifying credentials...",
+        "Establishing secure connection...",
+        "Almost there..."];
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
         const formData = { email, password };
         // console.log("Login form data:", formData);
         // Add API call here
@@ -29,6 +39,7 @@ const Login = () => {
         } else {
             toast.error(response.response);
         }
+        setLoading(false);
     };
 
     const togglePasswordVisibility = () => {
@@ -36,7 +47,8 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#101218]">
+        loading ? <Loader messages={loader_messages} interval={50}/> :
+        <div className="min-h-screen flex items-center justify-center bg-[#101218] my-8">
             <div className="bg-[#3c4352] text-[#fafafa] p-8 rounded-md shadow-md w-96">
                 <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -77,7 +89,8 @@ const Login = () => {
                     </div>
                     <button
                         type="submit"
-                        className="w-full bg-[#6588cb] text-[#fafafa] py-2 rounded-md hover:bg-[#5774ad] transition"
+                            className="w-full bg-[#6588cb] text-[#fafafa] py-2 rounded-md hover:bg-[#5774ad] transition"
+                            disabled={loading}
                     >
                         Login
                     </button>

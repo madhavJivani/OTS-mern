@@ -12,10 +12,10 @@ const Header = () => {
     const handleLogout = async () => {
         const response = await authLogout();
         console.log("Logout Responses:", response);
-        dispatch(logoutUser());
-
+        
         if (response.success) {
             toast.success("Logout successful!");
+            dispatch(logoutUser());
         } else {
             toast.error("Logout failed. Please login first.");
         }

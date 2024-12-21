@@ -6,7 +6,7 @@ const Home = () => {
     const { user, status } = useSelector((state) => state.user);
 
     return (
-        <div className="bg-[#101218] text-[#fafafa] min-h-screen">
+        <div className="bg-[#101218] text-[#fafafa] min-h-screen  my-8">
             <section className="text-center py-20">
                 <h1 className="text-4xl font-bold text-[#6588cb]">Welcome to the OTS System</h1>
                 <p className="mt-4 text-lg text-[#b0b5c1]">

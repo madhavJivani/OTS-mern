@@ -5,6 +5,7 @@ import Header from './Options/Header.jsx';
 import About from './Pages/About.jsx';
 import Home from './Pages/Home.jsx';
 import Contact from './Pages/Contact';
+import Loader from './Options/Loader.jsx'
 
 
 export { 
@@ -12,6 +13,7 @@ export {
     Signup,
     Footer,
     Header,
+    Loader,
     About,
     Home,
     Contact
