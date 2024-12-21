@@ -1,26 +1,22 @@
 import mongoose from "mongoose";
 
-const contentSchema = new mongoose.Schema({
+const noteSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
         trim: true,
         index: true
     },
-    short_description: {
+    description: {
         type: String,
         required: true
     },
-    detailed_description: {
-        type: String,
+    material_url: {
+        type: String, //cloudinary url or google drive url
         required: true
     },
-    content_url: {
-        type: String, //cloudinary url or youtube url
-        required: true
-    },
-    topic: {
-        type: String, // define topic's enums in frontend
+    subject: {
+        type: String, // define subject's enums in frontend [Currently consider only PCM]
         required: true,
         index: true
     },
@@ -31,8 +27,9 @@ const contentSchema = new mongoose.Schema({
     },
     postedBy: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        required: true
     }
 }, { timestamps: true });
 
-export const Content = mongoose.model("Content", contentSchema);
+export const Note = mongoose.model("Note", noteSchema);
