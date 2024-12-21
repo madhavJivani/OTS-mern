@@ -3,9 +3,9 @@ import axios from 'axios';
 const server = 'http://localhost:8000';
 
 export const registerRequest = async (formData) => {
-    const register_url = `${server}/api/v1/users/register`;
+    const url = `${server}/api/v1/users/register`;
     try {
-        const response = await axios.post(register_url, formData, {
+        const response = await axios.post(url, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
@@ -22,10 +22,10 @@ export const registerRequest = async (formData) => {
 }
 
 export const loginRequest = async (formData) => {
-    const login_url = 'http://localhost:8000/api/v1/users/login';
+    const url = 'http://localhost:8000/api/v1/users/login';
     try {
         // Send the login request
-        const loginResponse = await axios.post(login_url, formData, {
+        const loginResponse = await axios.post(url, formData, {
             withCredentials: true,
         });
         // console.log("Login Response:", loginResponse);
@@ -37,16 +37,30 @@ export const loginRequest = async (formData) => {
 };
 
 export const logoutUser = async () => { 
-    const logout_url = 'http://localhost:8000/api/v1/users/logout';
+    const url = 'http://localhost:8000/api/v1/users/logout';
     try {
         // Send the login request
-        const logoutResponse = await axios.post(logout_url, {}, {
+        const logoutResponse = await axios.post(url, {}, {
             withCredentials: true,
         });
         console.log("Logout Response:", logoutResponse);
         return logoutResponse.data;
-    } catch (loginError) {
-        console.error("Login Error:", loginError);
-        return { response: loginError.response?.data.error, success: false };
+    } catch (logoutError) {
+        console.error("Login Error:", logoutError);
+        return { response: logoutError.response?.data.error, success: false };
+    }
+};
+
+export const getCurrentUser = async () => { 
+    const url = `${server}/api/v1/users/current-user`
+    try {
+        const response = await axios.get(url, {
+            withCredentials: true,
+        });
+        // console.log(response)
+        return response.data;
+    } catch (fetchUserError) {
+        console.error("fetchUserError Error:", fetchUserError);
+        return { response: fetchUserError.response?.data.error, success: false };
     }
 };

@@ -330,7 +330,7 @@ const getCurrentUser = async (req, res) => {
 
     return res
         .status(200)
-        .json({ success: true, user:user });
+        .json({ success: true, message:"User found" ,user:user });
 };
 
 const updateUser = async (req, res) => {
