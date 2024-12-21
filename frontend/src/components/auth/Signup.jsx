@@ -5,6 +5,7 @@ import { registerRequest , loginRequest } from '../../utils/index.js';
 import { useNavigate } from "react-router-dom";
 import { loginUser } from '../../../store/func/userSlice.js'
 import { useDispatch } from 'react-redux';
+import { toast } from 'react-hot-toast';
 
 const Signup = () => {
     const [name, setName] = useState("");
@@ -28,13 +29,15 @@ const Signup = () => {
         try {
             const response = await registerRequest(formData); // Wait for the promise to resolve
             console.log("Response from registerRequest:", response);
+            
             const login_res = await loginRequest({ email, password });
             console.log("Response from loginRequest:", login_res);
             if (response.success) {
                 dispatch(loginUser(login_res.user));
+                toast.success("Registration successful!");
                 navigate("/");
             } else {
-                alert("Registration failed");
+                toast.error(response.response);
             }
         } catch (error) {
             console.log("Error from registerRequest:", error.response?.data?.error || error); // Handle errors

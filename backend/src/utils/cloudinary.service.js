@@ -29,7 +29,7 @@ export const uploadToCloudinary = async (localFilePath) => {
                 }
             ]
         });
-        console.log(`Image uploaded to cloudinary: ${result.secure_url} || from cloudinary.service.js`);
+        // console.log(`Image uploaded to cloudinary: ${result.secure_url} || from cloudinary.service.js`);
         fs.unlinkSync(localFilePath);
 
         return result;       

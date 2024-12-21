@@ -5,6 +5,7 @@ import { loginRequest } from '../../utils/index.js'
 import { useNavigate } from "react-router-dom";
 import { loginUser } from '../../../store/func/userSlice.js'
 import { useDispatch } from 'react-redux';
+import { toast } from 'react-hot-toast';
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -23,9 +24,10 @@ const Login = () => {
         
         if (response.success) {
             dispatch(loginUser(response.user));
+            toast.success('Login successful!');
             navigate("/");
         } else {
-            alert("Login failed");
+            toast.error(response.response);
         }
     };
 

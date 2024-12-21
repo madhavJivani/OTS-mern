@@ -25,11 +25,28 @@ export const loginRequest = async (formData) => {
     const login_url = 'http://localhost:8000/api/v1/users/login';
     try {
         // Send the login request
-        const loginResponse = await axios.post(login_url, formData);
+        const loginResponse = await axios.post(login_url, formData, {
+            withCredentials: true,
+        });
         // console.log("Login Response:", loginResponse);
         return loginResponse.data;
     } catch (loginError) {
         console.error("Login Error:", loginError);
         return { response: loginError.response?.data.error || "Login failed" };
+    }
+};
+
+export const logoutUser = async () => { 
+    const logout_url = 'http://localhost:8000/api/v1/users/logout';
+    try {
+        // Send the login request
+        const logoutResponse = await axios.post(logout_url, {}, {
+            withCredentials: true,
+        });
+        console.log("Logout Response:", logoutResponse);
+        return logoutResponse.data;
+    } catch (loginError) {
+        console.error("Login Error:", loginError);
+        return { response: loginError.response?.data.error, success: false };
     }
 };

@@ -5,7 +5,7 @@ export const verifyJWT = async (req, res, next) => {
 
     try {
         const token = req.cookies.accessToken || (req.headers.authorization && req.headers.authorization.replace("Bearer ", ""));
-        console.log("Token is (from auth.middleware.js): ", token);
+        // console.log("Token is (from auth.middleware.js): ", token);
         if (!token) {
             return res.status(401).json({ error: "Unauthorized user request",success:false });
         }
