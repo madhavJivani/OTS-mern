@@ -4,9 +4,11 @@ import { logoutUser } from "../../../store/func/userSlice.js";
 import { logoutUser as authLogout } from "../../utils/index.js";
 import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { user, status } = useSelector((state) => state.user);
 
     const handleLogout = async () => {
@@ -14,6 +16,7 @@ const Header = () => {
         console.log("Logout Responses:", response);
         
         if (response.success) {
+            navigate("/");
             toast.success("Logout successful!");
             dispatch(logoutUser());
         } else {
