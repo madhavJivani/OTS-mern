@@ -42,8 +42,9 @@ const options = {
     path: '/',
     withCredentials: true,
 }
+//exportable functions
 
-const registerUser = async (req, res) => { 
+export const registerUser = async (req, res) => { 
     try {
         // we got to handle : name , email, password, role , avatar-file - produce a url and store it.
 
@@ -148,7 +149,7 @@ const registerUser = async (req, res) => {
 };
 
 
-const loginUser = async (req, res) => { 
+export const loginUser = async (req, res) => { 
     try {
         const { email, password } = req.body;
         if (!email || !password) {
@@ -204,7 +205,7 @@ const loginUser = async (req, res) => {
 };
 
 
-const logoutUser = async (req, res) => { 
+export const logoutUser = async (req, res) => { 
     try {
         const user = req.user;
         user.refreshToken = null;
@@ -233,7 +234,8 @@ const logoutUser = async (req, res) => {
     }
 };
 
-const refreshAccessToken = async (req, res) => { 
+
+export const refreshAccessToken = async (req, res) => { 
     try {
         const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
         if (!incomingRefreshToken) {
@@ -288,7 +290,8 @@ const refreshAccessToken = async (req, res) => {
     }
 };
 
-const changePassword = async (req, res) => { 
+
+export const changePassword = async (req, res) => { 
     const { oldPassword, newPassword } = req.body;
     if (!oldPassword || !newPassword) {
         return res.status(400).json({ error: "Please provide oldPassword and newPassword", success: false });
@@ -321,7 +324,8 @@ const changePassword = async (req, res) => {
         .json({ message: "Password changed successfully", success: true });
 };
 
-const getCurrentUser = async (req, res) => {
+
+export const getCurrentUser = async (req, res) => {
     const user = req.user;
     if (!user) {
         return res.status(404).json({ error: "User not found", success: false });
@@ -332,7 +336,8 @@ const getCurrentUser = async (req, res) => {
         .json({ success: true, message:"User found" ,user:user });
 };
 
-const updateUser = async (req, res) => {
+
+export const updateUser = async (req, res) => {
     in_user = req.user;
     if (!in_user) {
         return res.status(404).json({ error: "Unauthorized request to update user", success: false });
@@ -359,12 +364,76 @@ const updateUser = async (req, res) => {
         .json({ message: "User updated successfully", success: true });
     
 };
-export {
-    registerUser,
-    loginUser,
-    logoutUser,
-    refreshAccessToken,
-    changePassword,
-    getCurrentUser,
-    updateUser
+
+export const updateAvatar = async (req, res) => { 
+    try {
+        // look for the user in the request
+        const in_user = req.user;
+        if (!in_user) {
+            return res.status(404).json({ error: "Unauthorized request to update avatar", success: false });
+        }
+        // look for the image in the request and store the previous image url
+        const prev_img_url = in_user.avatar_url;
+        try {
+            let new_image;
+            if (req.files && req.files.avatar) {
+                new_image = req.files.avatar[0].path;
+            }
+            else { 
+                console.log(`No image found in the request`,req.files,req.files?.avatar);
+                return res.status(400).json({ error: "Please provide an image", success: false });
+            }
+            // upload the new image to cloudinary and get the url
+            let avatarResponse = null;
+            try {
+                avatarResponse = await uploadToCloudinary(new_image);
+                if (!avatarResponse) {
+                    console.log(`Error in uploading image to cloudinary: ${error.message} || from user.controller.js`);
+                    return res.status(500).json({ error: "Error while upoading new image", success: false });
+                }
+            } catch (error) {
+                console.log(`Error in saving the user: ${error.message} || from user.controller.js`);
+                return res.status(500).json({ error: "Error while saving the user", success: false });
+                
+            }
+            // update the user with the new image url and save it , also delete the previous image from cloudinary
+            const user = await User.findById(in_user._id);
+            if (!user) {
+                return res.status(404).json({ error: "User not found", success: false });
+            }
+
+            user.avatar_url = avatarResponse.url;
+            try {
+                await user.save();
+
+                // --- > Currently we are not deleting the previous image from cloudinary, coz we need to add a check if that's the default image or not.
+                
+                // now delete the previous image from cloudinary storage
+                // if (prev_img_url) {
+                //     const public_id = prev_img_url.split('/').slice(-1)[0].split('.')[0];
+                //     await cloudinary.uploader.destroy(public_id);
+                // }
+            } catch (error) {
+                console.log(`Error in saving the user: ${error.message} || from user.controller.js`);
+                return res.status(500).json({ error: "Error while saving the user", success: false });
+            }
+        } catch (error) {
+            console.log(`Error in updateAvatar: ${error.message} || from user.controller.js`);
+            return res.status(500).json({ error: "Error in fetching new image", success: false });
+            
+        }
+        return res
+            .status(200)
+            .json({ message: "Avatar updated successfully", success: true });
+        
+        
+    } catch (error) {
+        console.log(`Error in updateAvatar: ${error.message} || from user.controller.js`);
+        res.
+            status(500)
+            .json({
+                error: "Internal Server Error",
+                success: false
+            });
+    }
 };

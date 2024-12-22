@@ -30,13 +30,13 @@ export const uploadToCloudinary = async (localFilePath) => {
             ]
         });
         // console.log(`Image uploaded to cloudinary: ${result.secure_url} || from cloudinary.service.js`);
-        fs.unlinkSync(localFilePath);
-
-        return result;       
+        return result;
     } catch (error) {
         console.log(`Error in uploading image to cloudinary: ${error.message} || from cloudinary.service.js`);
-        fs.unlinkSync(localFilePath);
         return null;
+    }
+    finally { 
+        fs.unlinkSync(localFilePath);
     }
 };
 

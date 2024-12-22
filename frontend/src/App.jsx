@@ -22,9 +22,9 @@ const App = () => {
                     setLoading(false);
                 }
                 else {
-                    toast.error("Failed to fetch user");
+                    // toast.error("Failed to fetch user");
                     setLoading(false);
-                    console.log("Response:", res);
+                    // console.log("Response:", res);
                 }
             } catch (error) {
                 toast.error("Failed to fetch user");

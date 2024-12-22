@@ -15,7 +15,7 @@ export const verifyJWT = async (req, res, next) => {
             decoded_token = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
         } catch (error) {
             console.log("ERROR decoding token", error.message);
-            return res.status(500).json({ error: "Internal Server Error" , success:false });
+            return res.status(403).json({ error: "Invalid access token" , success:false });
             
         }
         
