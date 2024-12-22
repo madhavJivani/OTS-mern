@@ -1,15 +1,15 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { Header, Footer, Signup, Login, Profile,ChangePassword,ChangeUserDetails, Contact, About, Home ,Loader } from './components/index.js';
+import { Header, Footer, Signup, Login, Profile, ChangePassword, ChangeUserDetails, ChangeAvatar, Contact, About, Home, Loader } from './components/index.js';
 import React, { useEffect, useState } from 'react'
 import { get_user } from './utils/user.index.js';
 import { useDispatch } from 'react-redux';
-import { loginUser,logoutUser } from '../store/func/userSlice.js'
+import { loginUser, logoutUser } from '../store/func/userSlice.js'
 
 const App = () => {
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(false);
-    
+
     useEffect(() => {
         setLoading(true);
         const fetchUser = async () => {
@@ -20,7 +20,7 @@ const App = () => {
                     setLoading(false);
                 }
                 else {
-                    dispatch(logoutUser()); 
+                    dispatch(logoutUser());
                     setLoading(false);
                     // console.log("Response:", res);
                 }
@@ -31,25 +31,26 @@ const App = () => {
         };
         fetchUser();
 
-    }, [])
+    }, [dispatch])
     return (
         loading ? <Loader messages={["Fetching your info"]} /> :
-        <Router>
-            <Header />
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/change-password" element={<ChangePassword />} />
+            <Router>
+                <Header />
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/signup" element={<Signup />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/change-password" element={<ChangePassword />} />
                     <Route path="/edit-details" element={<ChangeUserDetails />} />
-                    
-            </Routes>
-            <Footer />
-            <Toaster position="bottom-center" />
-        </Router>
+                    <Route path="/change-avatar" element={<ChangeAvatar />} />
+
+                </Routes>
+                <Footer />
+                <Toaster position="bottom-center" />
+            </Router>
     )
 }
 

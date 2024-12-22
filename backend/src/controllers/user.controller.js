@@ -1,5 +1,5 @@
 import { User } from "../models/user.model.js";
-import { uploadToCloudinary } from '../utils/cloudinary.service.js'
+import { uploadToCloudinary , deleteFromCloudinary } from '../utils/cloudinary.service.js'
 import { deleteFile } from '../utils/helpers.js';
 import jwt from 'jsonwebtoken';
 /**
@@ -352,10 +352,13 @@ export const updateAvatar = async (req, res) => {
                 // --- > Currently we are not deleting the previous image from cloudinary, coz we need to add a check if that's the default image or not.
                 
                 // now delete the previous image from cloudinary storage
-                // if (prev_img_url) {
-                //     const public_id = prev_img_url.split('/').slice(-1)[0].split('.')[0];
-                //     await cloudinary.uploader.destroy(public_id);
-                // }
+                if (prev_img_url) {
+                    const result = await deleteFromCloudinary(prev_img_url);
+                    if (!result) { 
+                        console.log(`Error in deleting the previous image from cloudinary: ${error.message} || from user.controller.js`);
+                        // return res.status(500).json({ error: "Failed to delete previous avatar. Please try again.", success: false });
+                    }
+                }
             } catch (error) {
                 console.log(`Error in saving the user: ${error.message} || from user.controller.js`);
                 return res.status(500).json({ error: "Error while saving the user", success: false });

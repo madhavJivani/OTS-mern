@@ -85,7 +85,13 @@ export const update_avatar = async (formData) => {
             },
             withCredentials: true,
         });
-        return response.data;
+        if (response.data) {
+            const userResponse = await get_user();
+            return userResponse;
+        }
+        else { 
+            return response.data;
+        }
     } catch (avatarUpdateError) {
         if (avatarUpdateError.code === "ERR_NETWORK") {
             return { error: "Network Error Please try again later", success: false };
