@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { Header, Footer, Signup, Login, Profile,ChangePassword, Contact, About, Home ,Loader } from './components/index.js';
+import { Header, Footer, Signup, Login, Profile,ChangePassword,ChangeUserDetails, Contact, About, Home ,Loader } from './components/index.js';
 import React, { useEffect, useState } from 'react'
 import { get_user } from './utils/user.index.js';
 import { useDispatch } from 'react-redux';
@@ -44,6 +44,8 @@ const App = () => {
                 <Route path="/about" element={<About />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/change-password" element={<ChangePassword />} />
+                    <Route path="/edit-details" element={<ChangeUserDetails />} />
+                    
             </Routes>
             <Footer />
             <Toaster position="bottom-center" />

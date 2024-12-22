@@ -284,8 +284,17 @@ export const updateUser = async (req, res) => {
     }
     if (name)
         user.name = name;
-    if(email)
+    if (email) { 
         user.email = email;
+        const existingUser = await User.findOne({ email, _id: { $ne: user._id } });
+        if (existingUser) {
+            return res.status(400).json({
+                error: "Email already in use by another account.",
+                success: false
+            });
+        }
+    }
+
     try {
         await user.save({validateBeforeSave: false});
     } catch (error) {

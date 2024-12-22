@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaArrowLeft } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { get_user, update_password } from '../../utils/user.index.js'
 import { loginUser, logoutUser } from '../../../store/func/userSlice.js'
 import { Loader } from '../index.js'
+import { useNavigate } from "react-router-dom";
 // import { update_password } from "../../utils/profile.utils";
 
 const ChangePassword = () => {
@@ -14,6 +15,7 @@ const ChangePassword = () => {
     const [loading, setLoading] = useState(true);
     const [passwordVisible, setPasswordVisible] = useState(false);
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const togglePasswordVisibility = () => {
         setPasswordVisible((prevState) => !prevState);
@@ -51,11 +53,19 @@ const ChangePassword = () => {
             }
         };
         fetchUser();
-    }, []);
+    }, [dispatch]);
 
     return (
         loading ? <Loader messages={["Fetching your info"]} /> :
-            <div className="min-h-screen bg-[#101218] text-[#fafafa] py-8 px-4">
+            <div className="min-h-screen bg-[#101218] text-[#fafafa] py-8 px-4 relative">
+                {/* Back Button */}
+                <button
+                    className="absolute top-4 right-4 flex items-center gap-2 text-[#6588cb] hover:text-[#4a6aa9] px-3 py-2 rounded-lg transition-all"
+                    onClick={() => navigate('/profile')}
+                >
+                    <FaArrowLeft className="text-xl" />
+                    <span className="font-semibold">Back</span>
+                </button>
                 {/* Top Section */}
                 <div className="flex flex-col items-center w-full max-w-4xl mb-8 mx-auto">
                     <h1 className="text-4xl font-bold text-[#6588cb] mb-6">Change Password</h1>

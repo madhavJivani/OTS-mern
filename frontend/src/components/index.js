@@ -2,6 +2,7 @@ import Login from './auth/Login.jsx';
 import Signup from './auth/Signup.jsx';
 import Profile from './auth/Profile.jsx'
 import ChangePassword from './auth/ChangePassword.jsx';
+import ChangeUserDetails from './auth/ChangeUserDetails.jsx';
 import Footer from './Options/Footer.jsx'
 import Header from './Options/Header.jsx';
 import About from './Pages/About.jsx';
@@ -15,6 +16,7 @@ export {
     Signup,
     Profile,
     ChangePassword,
+    ChangeUserDetails,
     Footer,
     Header,
     Loader,
