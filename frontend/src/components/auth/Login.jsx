@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { loginRequest } from '../../utils/index.js'
+import { handle_login_request } from '../../utils/user.index.js'
 import { useNavigate } from "react-router-dom";
 import { loginUser } from '../../../store/func/userSlice.js'
 import { useDispatch } from 'react-redux';
@@ -28,16 +28,15 @@ const Login = () => {
         setLoading(true);
         const formData = { email, password };
         // console.log("Login form data:", formData);
-        // Add API call here
-        const response = await loginRequest(formData);
-        console.log(`response from loginRequest:`, response);
+        const response = await handle_login_request(formData);
+        console.log(`response from login_user:`, response);
         
         if (response.success) {
-            dispatch(loginUser(response.user));
-            toast.success('Login successful!');
             navigate("/");
+            toast.success('Login successful!');
+            dispatch(loginUser(response.user));
         } else {
-            toast.error(response.response);
+            toast.error(response.error);
         }
         setLoading(false);
     };

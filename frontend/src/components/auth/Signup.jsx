@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { registerRequest , loginRequest } from '../../utils/index.js';
+import { handle_signup_request } from '../../utils/user.index.js';
 import { useNavigate } from "react-router-dom";
 import { loginUser } from '../../../store/func/userSlice.js'
 import { useDispatch } from 'react-redux';
@@ -36,22 +36,15 @@ const Signup = () => {
         } else {
             formData = { name, email, password, role };
         }
-        try {
-            const response = await registerRequest(formData); // Wait for the promise to resolve
-            console.log("Response from registerRequest:", response);
-            
-            const login_res = await loginRequest({ email, password });
-            console.log("Response from loginRequest:", login_res);
-            if (response.success) {
-                dispatch(loginUser(login_res.user));
-                toast.success("Registration successful!");
-                navigate("/");
-            } else {
-                toast.error(response.response);
-            }
-        } catch (error) {
-            console.log("Error from registerRequest:", error.response?.data?.error || error); // Handle errors
-            // Handle your error here, such as showing an error message to the user
+        const response = await handle_signup_request(formData);
+        console.log(`response from register_user:`, response);
+
+        if (response.success) {
+            navigate("/");
+            toast.success('Signup successful!');
+            dispatch(loginUser(response.user));
+        } else {
+            toast.error(response.error);
         }
         setLoading(false);
     };

@@ -5,19 +5,20 @@ const server = 'http://localhost:8000';
 export const register_user = async (formData) => {
     const url = `${server}/api/v1/users/register`;
     try {
-        const response = await axios.post(url, formData, {
+        const registerResponse = await axios.post(url, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
             // never ignore this multipart header while sending files
         });
-        // console.log(response.data);
-        return response.data;
-    } catch (error) {
-        // console.log(error);
-        console.log(error.response.data.error); // --- perfect error msg
-        // console.log(`Error in registerUser: ${error}`);
-        return { response: error.response.data.error };
+        // console.log(registerResponse.data);
+        return registerResponse.data;
+    } catch (registerError) {
+        if (registerError.code === "ERR_NETWORK") {
+            return { error: "Network Error Please try again later", success: false };
+        }
+        console.log(registerError.response.data.error);
+        return registerError.response.data;
     }
 }
 
@@ -31,8 +32,11 @@ export const login_user = async (formData) => {
         // console.log("Login Response:", loginResponse);
         return loginResponse.data;
     } catch (loginError) {
-        console.error("Login Error:", loginError);
-        return { response: loginError.response?.data.error || "Login failed" };
+        if (loginError.code === "ERR_NETWORK") { 
+            return {error: "Network Error Please try again later", success: false};
+        }
+        console.log(`Login error response: `, loginError.response.data.error);
+        return loginError.response.data;
     }
 };
 
@@ -43,11 +47,14 @@ export const logout_user = async () => {
         const logoutResponse = await axios.post(url, {}, {
             withCredentials: true,
         });
-        console.log("Logout Response:", logoutResponse);
+        // console.log("Logout Response:", logoutResponse);
         return logoutResponse.data;
     } catch (logoutError) {
-        console.error("Login Error:", logoutError);
-        return { response: logoutError.response?.data.error, success: false };
+        if (logoutError.code === "ERR_NETWORK") {
+            return { error: "Network Error Please try again later", success: false };
+        }
+        console.error("Logout Error:", logoutError);
+        return logoutError.response.data;
     }
 };
 
@@ -60,8 +67,11 @@ export const get_user = async () => {
         // console.log(response)
         return response.data;
     } catch (fetchUserError) {
+        if (fetchUserError.code === "ERR_NETWORK") {
+            return { error: "Network Error Please try again later", success: false };
+        }
         console.error("fetchUserError Error:", fetchUserError);
-        return { response: fetchUserError.response?.data.error, success: false };
+        return fetchUserError.response.data;
     }
 };
 
@@ -75,9 +85,12 @@ export const update_avatar = async (formData) => {
             withCredentials: true,
         });
         return response.data;
-    } catch (error) {
-        console.log(`Error in updateAvatar: ${error}`);
-        return { response: error.response.data.error ,success: false};
+    } catch (avatarUpdateError) {
+        if (avatarUpdateError.code === "ERR_NETWORK") {
+            return { error: "Network Error Please try again later", success: false };
+        }
+        console.log(`Error in updateAvatar: `, avatarUpdateError);
+        return avatarUpdateError.response.data;
     }
 }
 
@@ -88,9 +101,12 @@ export const update_password = async (formData) => {
             withCredentials: true,
         })
         return response.data;
-    } catch (error) {
-        console.log(`Error in updatePassword: ${error}`);
-        return { response: error.response.data.error , success: false};
+    } catch (passwordUpdateError) {
+        if (passwordUpdateError.code === "ERR_NETWORK") {
+            return { error: "Network Error Please try again later", success: false };
+        }
+        console.log(`Error in updatePassword: `, passwordUpdateError);
+        return passwordUpdateError.response.data;
     }
 };
 
@@ -102,9 +118,12 @@ export const update_user_details = async (formData) => {
             withCredentials: true,
         });
         return response.data;
-    } catch (error) {
-        console.log(`Error in updateUserDetails: ${error}`);
-        return { response: error.response.data.error , success: false};
+    } catch (detailsUpdateError) {
+        if (detailsUpdateError.code === "ERR_NETWORK") {
+            return { error: "Network Error Please try again later", success: false };
+        }
+        console.log(`Error in updateUserDetails: `, detailsUpdateError);
+        return detailsUpdateError.response.data;
     }
 };
 
@@ -115,8 +134,66 @@ export const refresh_tokens = async () => {
             withCredentials: true,
         });
         return response.data;
+    } catch (refreshTokenError) {
+        if (refreshTokenError.code === "ERR_NETWORK") {
+            return { error: "Network Error Please try again later", success: false };
+        }
+        console.log(`Error in refreshTokens: `, refreshTokenError);
+        return refreshTokenError.response.data;
+    }
+}
+
+export const handle_login_request = async (formData) => { 
+    try {
+        const loginResponse = await login_user(formData);
+        console.log(`loginResponse:`, loginResponse);
+        if (loginResponse.success) {
+            try {
+                const getUserResponse = await get_user();
+                console.log(`getUserResponse:`, getUserResponse);
+                return getUserResponse;
+            } catch (error) {
+                console.log(`Error in getUserResponse from handle_login_request: ${error}`);
+                return error.response.data;
+            }
+        }
+        else { 
+            return loginResponse;
+        }
     } catch (error) {
-        console.log(`Error in refreshTokens: ${error}`);
-        return { response: error.response.data.error , success: false};
+        console.log(`Error in loginResponse from handle_login_request: ${error}`);
+        return error.response.data;
+    }
+}
+
+export const handle_signup_request = async (formData) => {
+    try {
+        const signupResponse = await register_user(formData);
+        if (signupResponse.success) {
+            try {
+                const loginResponse = await login_user({ email: formData.email, password: formData.password });
+                if (loginResponse.success) {
+                    try {
+                        const getUserResponse = await get_user();
+                        return getUserResponse;
+                    } catch (error) {
+                        console.log(`Error in getUserResponse from handle_signup_request: ${error}`);
+                        return error.response.data;
+                    }
+                }
+                else { 
+                    return loginResponse;
+                }
+            } catch (error) {
+                console.log(`Error in loginResponse from handle_signup_request: ${error}`);
+                return error.response.data;
+            }
+        }
+        else { 
+            return signupResponse;
+        }
+    } catch (error) {
+        console.log(`Error in signupResponse from handle_signup_request: ${error}`);
+        return error.response.data;
     }
 }

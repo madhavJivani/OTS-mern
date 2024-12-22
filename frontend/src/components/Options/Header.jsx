@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../../../store/func/userSlice.js";
-import { logoutUser as authLogout } from "../../utils/index.js";
+import { logout_user as authLogout } from "../../utils/user.index.js";
 import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
@@ -20,7 +20,7 @@ const Header = () => {
             toast.success("Logout successful!");
             dispatch(logoutUser());
         } else {
-            toast.error("Logout failed. Please login first.");
+            toast.error(response.error);
         }
     };
 

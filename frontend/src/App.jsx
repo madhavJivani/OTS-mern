@@ -2,9 +2,9 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { Header, Footer, Signup, Login, Profile, Contact, About, Home ,Loader } from './components/index.js';
 import React, { useEffect, useState } from 'react'
-import { getCurrentUser } from './utils/index.js'
+import { get_user } from './utils/user.index.js';
 import { useDispatch } from 'react-redux';
-import { loginUser } from '../store/func/userSlice.js'
+import { loginUser,logoutUser } from '../store/func/userSlice.js'
 import toast from 'react-hot-toast';
 
 const App = () => {
@@ -14,7 +14,7 @@ const App = () => {
     useEffect(() => {
         setLoading(true);
         const fetchUser = async () => {
-            const res = await getCurrentUser();
+            const res = await get_user();
             try {
                 if (res.success) {
                     dispatch(loginUser(res.user));
@@ -22,6 +22,7 @@ const App = () => {
                     setLoading(false);
                 }
                 else {
+                    // dispatch(logoutUser());
                     // toast.error("Failed to fetch user");
                     setLoading(false);
                     // console.log("Response:", res);

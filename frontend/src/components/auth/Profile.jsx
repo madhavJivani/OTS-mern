@@ -2,7 +2,7 @@ import React, { useState,useEffect} from "react";
 import Modal from "react-modal";
 import { FiEdit, FiEye } from "react-icons/fi";
 import { useSelector,useDispatch } from "react-redux";
-import { getCurrentUser } from "../../utils/index.js";
+import { get_user } from "../../utils/user.index.js";
 import { loginUser } from '../../../store/func/userSlice.js'
 import toast from "react-hot-toast";
 import {Loader } from '../index.js'
@@ -16,7 +16,7 @@ const Profile = () => {
     useEffect(() => {
         const fetchUser = async () => {
             setLoading(true);
-            const res = await getCurrentUser();
+            const res = await get_user();
             if (res.success) {
                 dispatch(loginUser(res.user));
                 toast.success(`Hey there! Welcome ${res.user.name}`);
