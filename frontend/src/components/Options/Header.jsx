@@ -25,7 +25,8 @@ const Header = () => {
     };
 
     return (
-        <header className="bg-[#3c4352] text-[#fafafa] p-4 flex justify-between items-center shadow-md">
+        <header className="bg-[#3c4352] text-[#fafafa] p-4 flex justify-between items-center shadow-md
+        sticky top-0 z-50 backdrop-brightness-125">
             {/* Section 1: Logo and Title (Left-aligned) */}
             <div className="flex-1 flex justify-start items-center">
                 <div className="flex items-center gap-2">

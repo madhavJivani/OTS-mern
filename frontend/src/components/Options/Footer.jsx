@@ -3,7 +3,7 @@ import { FaEnvelope, FaLinkedin, FaGithub } from "react-icons/fa";
 
 const Footer = () => {
     return (
-        <footer className="bg-[#3f4454] text-[#b0b5c1] text-center py-4 mt-6">
+        <footer className="bg-[#3f4454] text-[#b0b5c1] text-center py-4 mt-6 backdrop-brightness-200">
             <p>© 2024 OTS System. All rights reserved.</p>
             <div className="flex justify-center gap-6 mt-2">
                 <a
