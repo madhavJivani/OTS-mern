@@ -60,6 +60,7 @@ const Header = () => {
                                 src={user.avatar_url}
                                 alt="User Avatar"
                                 className="h-10 w-10 rounded-full"
+                                onClick={() => { toast.success(`Welcome ${user.name} !!`) }}
                             />
                         </Link>
                     </div>

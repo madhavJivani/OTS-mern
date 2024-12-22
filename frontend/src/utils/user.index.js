@@ -76,9 +76,10 @@ export const get_user = async () => {
 };
 
 export const update_avatar = async (formData) => { 
+    // accept avatar as file only one file
     const url = `${server}/api/v1/users/update-avatar`
     try {
-        const response = axios.patch(url, formData, {
+        const response = await axios.patch(url, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
@@ -95,11 +96,13 @@ export const update_avatar = async (formData) => {
 }
 
 export const update_password = async (formData) => { 
+    // accept oldPassword and newPassword both compulsory
     const url = `${server}/api/v1/users/change-password`
     try {
-        const response = axios.post(url, formData, {
+        const response = await axios.post(url, formData, {
             withCredentials: true,
         })
+        // console.log(response)
         return response.data;
     } catch (passwordUpdateError) {
         if (passwordUpdateError.code === "ERR_NETWORK") {
@@ -114,7 +117,7 @@ export const update_user_details = async (formData) => {
     // expect either name or email or both
     const url = `${server}/api/v1/users/update-account`
     try {
-        const response = axios.patch(url, formData, {
+        const response = await axios.patch(url, formData, {
             withCredentials: true,
         });
         return response.data;
@@ -130,7 +133,7 @@ export const update_user_details = async (formData) => {
 export const refresh_tokens = async () => { 
     const url = `${server}/api/v1/users/refresh-tokens`
     try {
-        const response = axios.post(url, {}, {
+        const response = await axios.post(url, {}, {
             withCredentials: true,
         });
         return response.data;

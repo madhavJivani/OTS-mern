@@ -1,11 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { Header, Footer, Signup, Login, Profile, Contact, About, Home ,Loader } from './components/index.js';
+import { Header, Footer, Signup, Login, Profile,ChangePassword, Contact, About, Home ,Loader } from './components/index.js';
 import React, { useEffect, useState } from 'react'
 import { get_user } from './utils/user.index.js';
 import { useDispatch } from 'react-redux';
 import { loginUser,logoutUser } from '../store/func/userSlice.js'
-import toast from 'react-hot-toast';
 
 const App = () => {
     const dispatch = useDispatch();
@@ -18,17 +17,14 @@ const App = () => {
             try {
                 if (res.success) {
                     dispatch(loginUser(res.user));
-                    // toast.success("User fetched successfully");
                     setLoading(false);
                 }
                 else {
-                    // dispatch(logoutUser());
-                    // toast.error("Failed to fetch user");
+                    dispatch(logoutUser()); 
                     setLoading(false);
                     // console.log("Response:", res);
                 }
             } catch (error) {
-                toast.error("Failed to fetch user");
                 setLoading(false);
                 console.log(`Error in fetchUser: ${error}`);
             }
@@ -47,6 +43,7 @@ const App = () => {
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/change-password" element={<ChangePassword />} />
             </Routes>
             <Footer />
             <Toaster position="bottom-center" />
