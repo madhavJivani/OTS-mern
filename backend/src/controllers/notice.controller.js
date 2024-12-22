@@ -17,7 +17,7 @@ export const createNotice = async (req, res) => {
         if (!title || !short_description || !detailed_description) { 
             return res
                 .status(400)
-                .json({ error: "Please enter all the fields", success: false });
+                .json({ error: "All fields (title, short description, and detailed description) are required.", success: false });
         }
         try {
             const newNotice = new Notice({
@@ -31,7 +31,7 @@ export const createNotice = async (req, res) => {
             if(!createdNotice) {
                 return res
                     .status(500)
-                    .json({ error: "Error while saving the Notice", success: false });
+                    .json({ error: "Failed to save the notice. Please try again later.", success: false });
             }
             return res
                 .status(201)
@@ -40,7 +40,7 @@ export const createNotice = async (req, res) => {
             console.log(`Error while creating the Notice: ${error.message}`);
             return res
                 .status(500)
-                .json({ error: "Error while creating the Notice", success: false });
+                .json({ error: "An unexpected error occurred while creating the notice. Please try again later.", success: false });
             
         }
     } catch (error) {
@@ -57,7 +57,7 @@ export const getNotices = async (req, res) => {
         if(!notices) {
             return res
                 .status(404)
-                .json({ error: "No Notices found", success: false });
+                .json({ error: "No notices available at the moment.", success: false });
         }
         return res
             .status(200)
@@ -66,7 +66,7 @@ export const getNotices = async (req, res) => {
         console.log(`Error in getNotices: ${error.message}`);
         return res
             .status(500)
-            .json({ error: "Internal Server Error", success: false });
+            .json({ error: "An unexpected error occurred while fetching notices. Please try again later.", success: false });
     }
 };
 
@@ -76,7 +76,7 @@ export const getNotice = async (req, res) => {
         if(!notice) {
             return res
                 .status(404)
-                .json({ error: "Notice not found", success: false });
+                .json({ error: "The requested notice does not exist or may have been removed.", success: false });
         }
         return res
             .status(200)
@@ -85,7 +85,7 @@ export const getNotice = async (req, res) => {
         console.log(`Error in getNotice: ${error.message}`);
         return res
             .status(500)
-            .json({ error: "Internal Server Error", success: false });
+            .json({ error: "An unexpected error occurred while retrieving the notice. Please try again later.", success: false });
     }
 };
 
@@ -95,32 +95,35 @@ export const updateNotice = async (req, res) => {
         if(!notice) {
             return res
                 .status(404)
-                .json({ error: "Notice not found", success: false });
+                .json({ error: "The notice to be updated does not exist or may have been removed.", success: false });
         }
         const { title, short_description, detailed_description } = req.body;
-        if (!title || !short_description || !detailed_description) { 
+        if (!(title || short_description || detailed_description)) { 
             return res
                 .status(400)
-                .json({ error: "Please enter all the fields", success: false });
+                .json({ error: "No update data provided. Please update at least one of (title or short description or detailed description).", success: false });
         }
         try {
-            notice.title = title;
-            notice.short_description = short_description;
-            notice.detailed_description = detailed_description;
+            if (title)
+                notice.title = title;
+            if (short_description)
+                notice.short_description = short_description;
+            if (detailed_description)
+                notice.detailed_description = detailed_description;
             const updatedNotice = await notice.save();
             if(!updatedNotice) {
                 return res
                     .status(500)
-                    .json({ error: "Error while updating the Notice", success: false });
+                    .json({ error: "An unexpected error occurred while updating the notice. Please try again later.", success: false });
             }
             return res
                 .status(201)
                 .json({ message: "Notice updated successfully", success: true , notice: updatedNotice });
         } catch (error) {
-            console.log(`Error while updating the Notice: ${error.message}`);
+            console.log(`Error Updating the notice: ${error.message}`);
             return res
                 .status(500)
-                .json({ error: "Error while updating the Notice", success: false });
+                .json({ error: "An unexpected error occurred while updating the notice. Please try again later.", success: false });
             
         }
     } catch (error) {
@@ -138,20 +141,20 @@ export const deleteNotice = async (req, res) => {
         if(!notice) {
             return res
                 .status(404)
-                .json({ error: "Notice not found", success: false });
+                .json({ error: "The notice to be deleted does not exist or may have been removed.", success: false });
         }
         try {
             const deletedNotice = await Notice.deleteOne({ _id: notice._id });
             if(!deletedNotice) {
             return res
                 .status(500)
-                .json({ error: "Error while deleting the Notice", success: false });
+                .json({ error: "An unexpected error occurred while deleting the notice. Please try again later.", success: false });
             }
         } catch (error) {
             console.log(`Error while deleting the Notice: ${error.message}`);
             return res
             .status(500)
-            .json({ error: "Error while deleting the Notice", success: false });
+                .json({ error: "An unexpected error occurred while deleting the notice. Please try again later.", success: false });
         }
         return res
             .status(200)

@@ -1,6 +1,7 @@
 import { User } from "../models/user.model.js";
 import { uploadToCloudinary } from '../utils/cloudinary.service.js'
 import { deleteFile } from '../utils/helpers.js';
+import jwt from 'jsonwebtoken';
 /**
  * In any controller we always return a response to the client in specific format.
  * 
@@ -57,7 +58,7 @@ export const registerUser = async (req, res) => {
                 deleteFile(image_local_path);
             }
             
-            return res.status(400).json({ error: "Please fill all of them name , email, password, role" , success: false });
+            return res.status(400).json({ error: "All fields (name, email, password, role) are required." , success: false });
         }
 
         // if the email already exists
@@ -80,12 +81,12 @@ export const registerUser = async (req, res) => {
             try {
                 avatarResponse = await uploadToCloudinary(avatarLocalFilePath);
                 if (!avatarResponse) {
-                    return res.status(500).json({ error: "Error while recieving response from cloudinary", success: false });
+                    return res.status(500).json({ error: "Failed to retrieve response from Cloudinary. Please try again.", success: false });
                 }
                 // console.log(`avatarResponse: ${avatarResponse}`);
             } catch (error) {
                 console.log(`Error in uploading image to cloudinary: ${error.message} || from user.controller.js`);
-                return res.status(500).json({ error: "Error while uploading image to cloudinary", success: false });
+                return res.status(500).json({ error: "Failed to upload avatar. Ensure the file is valid and try again.", success: false });
             }
         }
         
@@ -122,18 +123,11 @@ export const registerUser = async (req, res) => {
             return res.status(500).json({ error: "Error while creating user(3)" , success: false });
         }
         // return the response flowing the specific format
-        
-        const res_user = await User.findById(user._id).select('-password -refreshToken');
-        if (!res_user) {
-            return res.status(500).json({ error: "Error while creating user(4)" , success: false });
-        }
-
         return res
             .status(201)
             .json({
                 message: "User registered successfully",
                 success: true,
-                user: res_user
             });
 
 
@@ -166,18 +160,13 @@ export const loginUser = async (req, res) => {
         //check if the password matches
         const isMatch = await user.matchPassword(password);
         if (!isMatch) {
-            return res.status(401).json({ error: "Invalid credentials - password did not match", success: false });
+            return res.status(401).json({ error: "Incorrect password. Please try again.", success: false });
         }
 
         // generate the access token and refresh token
         const { accessToken, refreshToken } = await gen_tokens(user._id);
         if (!accessToken || !refreshToken) {
-            return res.status(500).json({ error: "Error while generating tokens(1)", success: false });
-        }
-
-        const res_user = await User.findById(user._id).select('-password -refreshToken');
-        if (!res_user) {
-            return res.status(500).json({ error: "Error while creating user(4)", success: false });
+            return res.status(500).json({ error: "Token generation failed. Please try again later.", success: false });
         }
 
         // return the response flowing the specific format
@@ -189,7 +178,6 @@ export const loginUser = async (req, res) => {
             .json({
                 message: "User logged in successfully",
                 success: true,
-                user: res_user
             })
 
     } catch (error) {
@@ -213,7 +201,7 @@ export const logoutUser = async (req, res) => {
             await user.save({validateBeforeSave: false});
         } catch (error) {
             console.log(`Error in saving the refreshToken to database: ${error.message} for logout || from user.controller.js`);
-            return res.status(500).json({ error: "Error while saving refreshToken", success: false });
+            return res.status(500).json({ error: "Failed to log out. Please try again.", success: false });
         }
 
         return res
@@ -235,59 +223,15 @@ export const logoutUser = async (req, res) => {
 };
 
 
-export const refreshAccessToken = async (req, res) => { 
-    try {
-        const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
-        if (!incomingRefreshToken) {
-            return res.status(401).json({ error: "Invalid refresh Token", success: false });
-        }
-
-        try {
-            const decoded = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
-            if (!decoded) {
-                return res.status(403).json({ error: "Invalid refresh Token", success: false });
-            }
-            const user = await User.findById(decoded._id);
-            if (!user) {
-                return res.status(404).json({ error: "User not found", success: false });
-            }
-            if (user.refreshToken !== incomingRefreshToken) {
-                return res.status(403).json({ error: "Refresh Token expired", success: false });
-            }
-
-            const { accessToken, refreshToken } = await gen_tokens(user._id);
-
-            if (!accessToken || !refreshToken) {
-                return res.status(500).json({ error: "Error while generating tokens(2)", success: false });
-            }
-
-            return res
-                .status(200)
-                .cookie('refreshToken', refreshToken, options)
-                .cookie('accessToken', accessToken, options)
-                .json({ message: "Access Token refreshed successfully", success: true });
-
-        } catch (error) {
-            console.log(`Error in refreshAccessToken: ${error.message} || from user.controller.js`);
-            res.
-                status(500)
-                .json({
-                    error: "Internal Server Error",
-                    success: false
-                });
-            
-        }
-        
-    } catch (error) {
-        console.log(`Error in refreshAccessToken: ${error.message} || from user.controller.js`);
-        res.
-            status(500)
-            .json({
-                error: "Internal Server Error",
-                success: false
-            });
-        
+export const getCurrentUser = async (req, res) => {
+    const user = req.user;
+    if (!user) {
+        return res.status(404).json({ error: "No user information found. Please log in and try again.", success: false });
     }
+
+    return res
+        .status(200)
+        .json({ success: true, message: "User found", user: user });
 };
 
 
@@ -308,7 +252,7 @@ export const changePassword = async (req, res) => {
 
     const isMatch = await user.matchPassword(oldPassword);
     if (!isMatch) {
-        return res.status(401).json({ error: "Invalid credentials - password did not match", success: false });
+        return res.status(401).json({ error: "Old password is incorrect. Please try again.", success: false });
     }
 
     user.password = newPassword;
@@ -316,7 +260,7 @@ export const changePassword = async (req, res) => {
         await user.save();
     } catch (error) {
         console.log(`Error in saving the user: ${error.message} || from user.controller.js`);
-        return res.status(500).json({ error: "Error while saving the user", success: false });
+        return res.status(500).json({ error: "Failed to update password. Please try again.", success: false });
     }
 
     return res
@@ -325,39 +269,28 @@ export const changePassword = async (req, res) => {
 };
 
 
-export const getCurrentUser = async (req, res) => {
-    const user = req.user;
-    if (!user) {
-        return res.status(404).json({ error: "User not found", success: false });
-    }
-
-    return res
-        .status(200)
-        .json({ success: true, message:"User found" ,user:user });
-};
-
-
 export const updateUser = async (req, res) => {
-    in_user = req.user;
+    const in_user = req.user;
     if (!in_user) {
-        return res.status(404).json({ error: "Unauthorized request to update user", success: false });
+        return res.status(400).json({ error: "You are not authorized to perform this action.", success: false });
     }
     const user = await User.findById(in_user._id);
     if (!user) {
         return res.status(404).json({ error: "User not found", success: false });
     }
-    const { name, email, role } = req.body;
-    if (!name || !email || !role) {
-        return res.status(400).json({ error: "Please provide name, email, role", success: false });
+    const { name, email } = req.body;
+    if (!(name || email)) {
+        return res.status(400).json({ error: "No update data provided. Please update at least one of (name or email).", success: false });
     }
-    user.name = name;
-    user.email = email;
-    user.role = role;
+    if (name)
+        user.name = name;
+    if(email)
+        user.email = email;
     try {
-        await user.save();
+        await user.save({validateBeforeSave: false});
     } catch (error) {
         console.log(`Error in saving the user: ${error.message} || from user.controller.js`);
-        return res.status(500).json({ error: "Error while saving the user", success: false });
+        return res.status(500).json({ error: "Failed to save updates. Please try again.", success: false });
     }
     return res
         .status(200)
@@ -365,12 +298,13 @@ export const updateUser = async (req, res) => {
     
 };
 
+
 export const updateAvatar = async (req, res) => { 
     try {
         // look for the user in the request
         const in_user = req.user;
         if (!in_user) {
-            return res.status(404).json({ error: "Unauthorized request to update avatar", success: false });
+            return res.status(404).json({ error: "You are not authorized to update your avatar.", success: false });
         }
         // look for the image in the request and store the previous image url
         const prev_img_url = in_user.avatar_url;
@@ -389,11 +323,11 @@ export const updateAvatar = async (req, res) => {
                 avatarResponse = await uploadToCloudinary(new_image);
                 if (!avatarResponse) {
                     console.log(`Error in uploading image to cloudinary: ${error.message} || from user.controller.js`);
-                    return res.status(500).json({ error: "Error while upoading new image", success: false });
+                    return res.status(500).json({ error: "Failed to upload new avatar. Please try again.", success: false });
                 }
             } catch (error) {
                 console.log(`Error in saving the user: ${error.message} || from user.controller.js`);
-                return res.status(500).json({ error: "Error while saving the user", success: false });
+                return res.status(500).json({ error: "Failed to update avatar details. Please try again.", success: false });
                 
             }
             // update the user with the new image url and save it , also delete the previous image from cloudinary
@@ -429,6 +363,61 @@ export const updateAvatar = async (req, res) => {
         
     } catch (error) {
         console.log(`Error in updateAvatar: ${error.message} || from user.controller.js`);
+        res.
+            status(500)
+            .json({
+                error: "Internal Server Error",
+                success: false
+            });
+    }
+};
+
+
+export const refreshAccessToken = async (req, res) => {
+    try {
+        const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
+        if (!incomingRefreshToken) {
+            return res.status(401).json({ error: "Refresh token missing. Please log in again.", success: false });
+        }
+
+        try {
+            const decoded = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
+            if (!decoded) {
+                return res.status(403).json({ error: "Invalid refresh token. Please log in again.", success: false });
+            }
+            const user = await User.findById(decoded._id);
+            if (!user) {
+                return res.status(404).json({ error: "User not found. Refresh token is invalid.", success: false });
+            }
+            if (user.refreshToken !== incomingRefreshToken) {
+                return res.status(403).json({ error: "Refresh token mismatch. Please log in again.", success: false });
+            }
+
+            const { accessToken, refreshToken } = await gen_tokens(user._id);
+
+            if (!accessToken || !refreshToken) {
+                return res.status(500).json({ error: "Failed to generate new tokens. Please try again later.", success: false });
+            }
+
+            return res
+                .status(200)
+                .cookie('refreshToken', refreshToken, options)
+                .cookie('accessToken', accessToken, options)
+                .json({ message: "Access Token refreshed successfully", success: true });
+
+        } catch (error) {
+            console.log(`Error in refreshAccessToken: ${error.message} || from user.controller.js`);
+            res.
+                status(500)
+                .json({
+                    error: "Internal Server Error",
+                    success: false
+                });
+
+        }
+
+    } catch (error) {
+        console.log(`Error in refreshAccessToken: ${error.message} || from user.controller.js`);
         res.
             status(500)
             .json({

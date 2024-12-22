@@ -9,13 +9,13 @@ router.route('/register').post(upload.fields([{ name: 'avatar', maxCount: 1 }]),
 router.route('/login').post(upload.none(),loginUser);
 //secured routes
 router.route("/logout").post(verifyJWT, logoutUser)
-router.route("/refresh-tokens").post(upload.none(),refreshAccessToken)
-router.route("/change-password").post(verifyJWT, changePassword)
 router.route("/current-user").get(verifyJWT, getCurrentUser)
-router.route("/update-account").patch(verifyJWT, updateUser)
+router.route("/change-password").post(upload.none(),verifyJWT, changePassword)
+router.route("/update-account").patch(upload.none() ,verifyJWT, updateUser)
 router.route("/update-avatar").patch(verifyJWT, upload.fields([{ name: 'avatar', maxCount: 1 }]), updateAvatar);
+router.route("/refresh-tokens").post(upload.none(),verifyJWT,refreshAccessToken)
 
-
+//  check if user is authenticated
 router.route('/is-authenticated').get(verifyJWT, (req, res) => {
     if (req.user) {
         return res.status(200).json({ success: true, message: "User is authenticated" });
