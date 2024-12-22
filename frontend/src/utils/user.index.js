@@ -1,8 +1,8 @@
 import axios from 'axios';
-
 const server = 'http://localhost:8000';
 
-export const registerRequest = async (formData) => {
+
+export const register_user = async (formData) => {
     const url = `${server}/api/v1/users/register`;
     try {
         const response = await axios.post(url, formData, {
@@ -21,7 +21,7 @@ export const registerRequest = async (formData) => {
     }
 }
 
-export const loginRequest = async (formData) => {
+export const login_user = async (formData) => {
     const url = 'http://localhost:8000/api/v1/users/login';
     try {
         // Send the login request
@@ -36,7 +36,7 @@ export const loginRequest = async (formData) => {
     }
 };
 
-export const logoutUser = async () => { 
+export const logout_user = async () => { 
     const url = 'http://localhost:8000/api/v1/users/logout';
     try {
         // Send the login request
@@ -51,7 +51,7 @@ export const logoutUser = async () => {
     }
 };
 
-export const getCurrentUser = async () => { 
+export const get_user = async () => { 
     const url = `${server}/api/v1/users/current-user`
     try {
         const response = await axios.get(url, {
@@ -64,3 +64,59 @@ export const getCurrentUser = async () => {
         return { response: fetchUserError.response?.data.error, success: false };
     }
 };
+
+export const update_avatar = async (formData) => { 
+    const url = `${server}/api/v1/users/update-avatar`
+    try {
+        const response = axios.patch(url, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        console.log(`Error in updateAvatar: ${error}`);
+        return { response: error.response.data.error ,success: false};
+    }
+}
+
+export const update_password = async (formData) => { 
+    const url = `${server}/api/v1/users/change-password`
+    try {
+        const response = axios.post(url, formData, {
+            withCredentials: true,
+        })
+        return response.data;
+    } catch (error) {
+        console.log(`Error in updatePassword: ${error}`);
+        return { response: error.response.data.error , success: false};
+    }
+};
+
+export const update_user_details = async (formData) => { 
+    // expect either name or email or both
+    const url = `${server}/api/v1/users/update-account`
+    try {
+        const response = axios.patch(url, formData, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        console.log(`Error in updateUserDetails: ${error}`);
+        return { response: error.response.data.error , success: false};
+    }
+};
+
+export const refresh_tokens = async () => { 
+    const url = `${server}/api/v1/users/refresh-tokens`
+    try {
+        const response = axios.post(url, {}, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        console.log(`Error in refreshTokens: ${error}`);
+        return { response: error.response.data.error , success: false};
+    }
+}
