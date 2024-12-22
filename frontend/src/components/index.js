@@ -11,6 +11,8 @@ import Home from './Pages/Home.jsx';
 import Contact from './Pages/Contact';
 import Loader from './Options/Loader.jsx'
 
+import ListNotices from './Notice/ListNotices.jsx';
+
 
 export { 
     Login,
@@ -24,5 +26,6 @@ export {
     Loader,
     About,
     Home,
-    Contact
+    Contact,
+    ListNotices,
 }

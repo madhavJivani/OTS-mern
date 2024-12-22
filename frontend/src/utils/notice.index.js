@@ -2,9 +2,9 @@ import axios from 'axios';
 const server = 'http://localhost:8000';
 
 export const create_notice = async (formData) => { 
-    const url = `{server}/api/v1/notices/create-notice`
+    const url = `${server}/api/v1/notices/create-notice`
     try {
-        const response = axios.post(url, formData, {
+        const response = await axios.post(url, formData, {
             withCredentials: true,
         });
         return response.data;
@@ -15,11 +15,12 @@ export const create_notice = async (formData) => {
 };
 
 export const get_notices = async () => { 
-    const url = `{server}/api/v1/notices/get-notices`
+    const url = `${server}/api/v1/notices/get-notices`
     try {
-        const response = axios.get(url, {},{
+        const response = await axios.get(url,{
             withCredentials: true,
         });
+        // console.log(response)
         return response.data;
     } catch (error) {
         console.log("Error in get_notices:", error);
