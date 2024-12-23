@@ -30,7 +30,7 @@ const AddNotice = () => {
     };
 
     return (
-        loading ? <Loader messages={["Adding the notice..."]} /> :
+        loading ? <Loader messages={["Adding the notice...", "Please wait while we create the notice."]} interval={500}/> :
             <div className="min-h-screen bg-[#101218] text-[#fafafa] py-8 px-4 relative">
                 {/* Back Button */}
                 <Link
@@ -43,12 +43,12 @@ const AddNotice = () => {
 
                 {/* Top Section */}
                 <div className="flex flex-col items-center w-full max-w-4xl mb-8 mx-auto">
-                    <h1 className="text-4xl font-bold text-[#6588cb] mb-6">Add New Notice</h1>
+                    <h1 className="text-4xl font-bold text-[#6588cb] mb-6">Issue a Notice</h1>
                 </div>
 
                 {/* Form Section */}
                 <div className="w-full max-w-4xl mx-auto bg-[#1a1d25] p-8 rounded-lg shadow-lg">
-                    <h2 className="text-2xl font-bold text-[#6588cb] mb-6">Create Notice</h2>
+                    <h2 className="text-2xl font-bold text-[#6588cb] mb-6">New Notice</h2>
                     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                         {/* Title Field */}
                         <div>

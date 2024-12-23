@@ -5,6 +5,7 @@ import { get_notices } from "../../utils/notice.index.js";
 import ShortNotice from "./ShortNotice";
 import { Loader } from "../index.js";
 import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
 
 const ListNotices = () => {
     const [notices, setNotices] = useState([]);
@@ -20,6 +21,7 @@ const ListNotices = () => {
                     setNotices(res.notices);
                 }
             } catch (err) {
+                toast.error(res.error || "Failed to fetch notices");
                 console.error("Error fetching notices:", err);
             } finally {
                 setLoading(false);
@@ -30,7 +32,7 @@ const ListNotices = () => {
     }, []);
 
     if (loading) {
-        return <Loader messages={["Fetching your notices"]} interval={500} />;
+        return <Loader messages={["Fetching your notices", "Loading data...", "Please wait a moment", "Almost there..."]} interval={500} />;
     }
 
     return (

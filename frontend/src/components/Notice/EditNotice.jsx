@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
 import { FaArrowLeft } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
@@ -9,12 +8,10 @@ import { Link } from "react-router-dom";
 
 const EditNotice = () => {
     const { id } = useParams();
-    const { user } = useSelector((state) => state.user);
     const [title, setTitle] = useState("");
     const [short_description, setShortDescription] = useState("");
     const [detailed_description, setDetailedDescription] = useState("");
     const [loading, setLoading] = useState(true);
-    const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -38,7 +35,7 @@ const EditNotice = () => {
                 setDetailedDescription(res.notice.detailed_description);
                 setLoading(false);
             } else {
-                toast.error("Failed to fetch notice");
+                toast.error(res.error || "Failed to fetch notice");
                 setLoading(false);
             }
         };

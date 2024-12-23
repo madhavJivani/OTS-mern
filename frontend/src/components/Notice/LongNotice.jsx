@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";  // To access the current user role f
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { delete_notice } from '../../utils/notice.index.js'
+import { Loader } from "../index.js";
 
 function formatDate(isoString) {
     const date = new Date(isoString);
@@ -43,10 +44,11 @@ const LongNotice = () => {
     }, [id]);
 
     if (loading) {
-        return <div className="text-center mt-8">Loading...</div>;
+        return <Loader messages={["Fetching notice details..."]} />;
     }
 
     if (!notice) {
+        toast.error("Notice not found, may be it was deleted or never existed");
         return (
             <div className="text-center mt-8 text-red-500">
                 Unable to load the notice. Please try again later.
