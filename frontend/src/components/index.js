@@ -14,6 +14,7 @@ import Loader from './Options/Loader.jsx'
 import ListNotices from './Notice/ListNotices.jsx';
 import ShortNotice from './Notice/ShortNotice.jsx';
 import LongNotice from './Notice/LongNotice.jsx';
+import EditNotice from './Notice/EditNotice.jsx';
 
 
 export { 
@@ -32,4 +33,5 @@ export {
     ListNotices,
     ShortNotice,
     LongNotice,
+    EditNotice,
 }

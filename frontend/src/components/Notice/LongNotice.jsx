@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { get_notice } from "../../utils/notice.index.js";
-import { FaArrowLeft, FaCalendarAlt, FaEnvelope, FaUserTie } from "react-icons/fa";
+import { FaArrowLeft, FaCalendarAlt, FaEnvelope, FaUserTie, FaEdit, FaTrashAlt } from "react-icons/fa";
+import { useSelector } from "react-redux";  // To access the current user role from the store
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import { delete_notice } from '../../utils/notice.index.js'
 
 function formatDate(isoString) {
     const date = new Date(isoString);
@@ -17,6 +21,8 @@ const LongNotice = () => {
     const { id } = useParams();
     const [notice, setNotice] = useState();
     const [loading, setLoading] = useState(true);
+    const { user } = useSelector((state) => state.user);  // Access the user from Redux store
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchNotice = async () => {
@@ -26,6 +32,7 @@ const LongNotice = () => {
                     setNotice(res.notice);
                 }
             } catch (err) {
+                toast.error(res.error || "Error fetching notice");
                 console.error("Error fetching notice:", err);
             } finally {
                 setLoading(false);
@@ -107,7 +114,7 @@ const LongNotice = () => {
                         alt="Author Avatar"
                         className="w-16 h-16 rounded-full border-2 border-[#6588cb] object-cover"
                     />
-                    <div>
+                    <div className="flex-grow">
                         <p className="flex items-center gap-2">
                             <FaUserTie />
                             <span>{notice.author_name}</span>
@@ -117,6 +124,32 @@ const LongNotice = () => {
                             <span>{notice.author_email}</span>
                         </p>
                     </div>
+
+                    {/* Conditionally Render Edit & Delete Buttons (Only for Admin) */}
+                    {user?.role === "admin" && (
+                        <div className="flex flex-col items-center gap-4">
+                            {/* Edit Button */}
+                            <Link
+                                to={`/notices/edit-notice/${notice._id}`}
+                                className="bg-yellow-500 text-white p-3 rounded-full hover:bg-yellow-600 transition-all"
+                                title="Edit Notice"
+                            >
+                                <FaEdit size={16} />
+                            </Link>
+
+                            {/* Delete Button */}
+                            <button
+                                className="bg-red-500 text-white p-3 rounded-full hover:bg-red-600 transition-all"
+                                title="Delete Notice"
+                                onClick={() => {
+                                    console.log("Delete action here"); toast.success("Notice deleted successfully");
+                                    delete_notice(notice._id).then(() => navigate("/notices"));
+                                 }}
+                            >
+                                <FaTrashAlt size={16} />
+                            </button>
+                        </div>
+                    )}
                 </div>
             </section>
         </div>
