@@ -15,6 +15,7 @@ import ListNotices from './Notice/ListNotices.jsx';
 import ShortNotice from './Notice/ShortNotice.jsx';
 import LongNotice from './Notice/LongNotice.jsx';
 import EditNotice from './Notice/EditNotice.jsx';
+import AddNotice from './Notice/AddNotice.jsx';
 
 
 export { 
@@ -34,4 +35,5 @@ export {
     ShortNotice,
     LongNotice,
     EditNotice,
+    AddNotice,
 }

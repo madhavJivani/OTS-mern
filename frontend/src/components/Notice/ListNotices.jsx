@@ -45,7 +45,7 @@ const ListNotices = () => {
             </Link>
             {user.role !== "user" && (<button
                 className="fixed bottom-8 right-8 bg-green-500 text-white w-16 h-16 rounded-full flex justify-center items-center shadow-lg hover:bg-green-600 transition-all z-50"
-                onClick={() => navigate("/add-notice")}
+                onClick={() => navigate("/notices/add-notice")}
                 title="Add a Notice"
             >
                 <FaPlus size={24} />
