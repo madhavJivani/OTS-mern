@@ -1,4 +1,5 @@
-import {Notice} from '../models/notice.model.js';
+import { Notice } from '../models/notice.model.js';
+import mongoose from 'mongoose';
 
 /**
  * In any controller we always return a response to the client in specific format.
@@ -24,7 +25,6 @@ export const createNotice = async (req, res) => {
                 title: title,
                 short_description: short_description,
                 detailed_description: detailed_description,
-                author: req_user.name,
                 postedBy: req_user._id
             });
             const createdNotice = await newNotice.save();
@@ -53,12 +53,42 @@ export const createNotice = async (req, res) => {
 
 export const getNotices = async (req, res) => { 
     try {
-        const notices = await Notice.find().sort({createdAt: -1});
-        if(!notices) {
-            return res
-                .status(404)
-                .json({ error: "No notices available at the moment.", success: false });
+        const notices = await Notice.aggregate([
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "postedBy",
+                    foreignField: "_id",
+                    as: "postedBy"
+                }
+            },
+            {
+                $unwind: {
+                    path : "$postedBy",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $project: {
+                    title: 1,
+                    short_description: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    "author_name": "$postedBy.name",
+                    "author_avatar": "$postedBy.avatar_url",
+                    "author_role": "$postedBy.role"
+                }
+            }
+        ]);
+        
+        // Check if notices are empty
+        if (!notices || notices.length === 0) {
+            return res.status(404).json({
+                error: "No notices available at the moment.",
+                success: false
+            });
         }
+
         return res
             .status(200)
             .json({ message: "Notices found successfully", success: true , notices: notices });
@@ -72,20 +102,60 @@ export const getNotices = async (req, res) => {
 
 export const getNotice = async (req, res) => { 
     try {
-        const notice = await Notice.findById(req.params.id);
-        if(!notice) {
-            return res
-                .status(404)
-                .json({ error: "The requested notice does not exist or may have been removed.", success: false });
+        // console.log(req.params.id);
+        const notice = await Notice.aggregate([
+            // match the notice id
+            {
+                $match: {
+                    _id: new mongoose.Types.ObjectId(req.params.id)
+                }
+            },
+            // lookup the user who posted the notice
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "postedBy",
+                    foreignField: "_id",
+                    as: "postedBy"
+                }
+            },
+            // unwind the user object
+            {
+                $unwind: {
+                    path : "$postedBy",
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            // project the required fields
+            {
+                $project: {
+                    title: 1,
+                    short_description: 1,
+                    detailed_description: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    "author_name": "$postedBy.name",
+                    "author_email" : "$postedBy.email",
+                    "author_avatar": "$postedBy.avatar_url",
+                    "author_role": "$postedBy.role"
+                }
+            }
+        ]);
+        // console.log(notice);
+        // Check if notice is empty
+        if (!notice || notice.length === 0) {
+            return res.status(404).json({
+                error: "No notice found with the provided id.",
+                success: false
+            });
         }
-        return res
-            .status(200)
-            .json({ message: "Notice found successfully", success: true , notice: notice });
+        return res.status(200).json({ message: "Notice found successfully", success: true , notice: notice[0] });
+
     } catch (error) {
         console.log(`Error in getNotice: ${error.message}`);
         return res
             .status(500)
-            .json({ error: "An unexpected error occurred while retrieving the notice. Please try again later.", success: false });
+            .json({ error: "Internal Server Error", success: false });
     }
 };
 

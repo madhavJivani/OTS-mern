@@ -15,11 +15,6 @@ const noticeSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    author: {
-        type: String,
-        required: true,
-        index: true
-    },
     postedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
