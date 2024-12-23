@@ -20,11 +20,6 @@ const noteSchema = new mongoose.Schema({
         required: true,
         index: true
     },
-    author: {
-        type: String, // fetch from postedBy(user.name)
-        required: true,
-        index: true
-    },
     postedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

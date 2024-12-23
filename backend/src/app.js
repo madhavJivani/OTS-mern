@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 
 import UserRouter from './routes/user.routes.js';
 import NoticeRouter from './routes/notice.routes.js'
+import NoteRouter from './routes/note.routes.js';
 
 const app = express();
 
@@ -18,5 +19,6 @@ app.use(cookieParser());
 
 app.use("/api/v1/users", UserRouter);
 app.use("/api/v1/notices", NoticeRouter);
+app.use("/api/v1/notes", NoteRouter);
 
 export default app;
