@@ -10,7 +10,7 @@ export const create_notice = async (formData) => {
         return response.data;
     } catch (error) {
         console.log("Error in create_notice:", error);
-        return { response: error.response.data.error, success: false };
+        return error.response.data;
     }
 };
 
@@ -24,6 +24,20 @@ export const get_notices = async () => {
         return response.data;
     } catch (error) {
         console.log("Error in get_notices:", error);
-        return { response: error.response.data.error, success: false };
+        return error.response.data;
+    }
+}
+
+export const get_notice = async (id) => { 
+    const url = `${server}/api/v1/notices/get-notice/${id}`
+    try {
+        const response = await axios.get(url, {
+            withCredentials: true,
+        });
+        // console.log(response)
+        return response.data;
+    } catch (error) {
+        console.log("Error in getting single notice:", error);
+        return error.response.data;
     }
 }

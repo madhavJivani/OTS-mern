@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginUser, logoutUser } from '../../../store/func/userSlice.js';
 import { FaArrowLeft } from 'react-icons/fa';
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { Loader } from "../index.js";
 import { update_avatar } from "../../utils/user.index.js"; // Assuming this function handles the avatar update logic.
@@ -42,13 +43,13 @@ const ChangeAvatar = () => {
         loading ? <Loader messages={["Uploading new avatar...", "Processing image...", "Saving changes...", "Finalizing update...", "Almost there..."]} interval={500}  /> :
             <div className="min-h-screen flex items-center justify-center bg-[#101218] py-8 px-4 relative">
                 {/* Back Button */}
-                                <button
-                                    className="absolute top-4 right-4 flex items-center gap-2 text-[#6588cb] hover:text-[#4a6aa9] px-3 py-2 rounded-lg transition-all"
-                                    onClick={() => navigate('/profile')}
-                                >
-                                    <FaArrowLeft className="text-xl" />
-                                    <span className="font-semibold">Back</span>
-                                </button>
+                <Link
+                    to="/profile"
+                    className="absolute top-4 right-4 bg-[#161a24] text-[#6588cb] p-3 rounded-full hover:bg-[#1f2533] transition-all shadow-lg flex items-center"
+                    title="Back to Home"
+                >
+                    <FaArrowLeft size={18} />
+                </Link>
                 <div className="bg-[#3c4352] text-[#fafafa] p-8 rounded-md shadow-md w-96">
                     <h2 className="text-2xl font-bold text-center mb-6">Change Avatar</h2>
                     <form onSubmit={handleSubmit} className="space-y-4">

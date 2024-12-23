@@ -12,6 +12,8 @@ import Contact from './Pages/Contact';
 import Loader from './Options/Loader.jsx'
 
 import ListNotices from './Notice/ListNotices.jsx';
+import ShortNotice from './Notice/ShortNotice.jsx';
+import LongNotice from './Notice/LongNotice.jsx';
 
 
 export { 
@@ -28,4 +30,6 @@ export {
     Home,
     Contact,
     ListNotices,
+    ShortNotice,
+    LongNotice,
 }

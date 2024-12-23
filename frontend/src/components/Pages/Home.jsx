@@ -48,7 +48,7 @@ const Home = () => {
             </section>
 
             {/* Floating Buttons */}
-            <div className="fixed right-6 top-1/2 transform -translate-y-1/2 z-50 flex flex-col items-center space-y-4">
+            {(status === "loggedIn") && (<div className="fixed right-6 top-1/2 transform -translate-y-1/2 z-50 flex flex-col items-center space-y-4">
                 {/* Button for Notices */}
                 <button
                     className="relative group w-16 h-16 rounded-full bg-blue-500 text-white flex justify-center items-center shadow-lg hover:bg-blue-600 transition-all"
@@ -81,7 +81,7 @@ const Home = () => {
                         Videos
                     </span>
                 </button>
-            </div>
+            </div>)}
         </div>
     );
 };

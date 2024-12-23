@@ -6,6 +6,7 @@ import { get_user, update_password } from '../../utils/user.index.js'
 import { loginUser, logoutUser } from '../../../store/func/userSlice.js'
 import { Loader } from '../index.js'
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 // import { update_password } from "../../utils/profile.utils";
 
 const ChangePassword = () => {
@@ -59,13 +60,13 @@ const ChangePassword = () => {
         loading ? <Loader messages={["Fetching your info"]} /> :
             <div className="min-h-screen bg-[#101218] text-[#fafafa] py-8 px-4 relative">
                 {/* Back Button */}
-                <button
-                    className="absolute top-4 right-4 flex items-center gap-2 text-[#6588cb] hover:text-[#4a6aa9] px-3 py-2 rounded-lg transition-all"
-                    onClick={() => navigate('/profile')}
+                <Link
+                    to="/profile"
+                    className="absolute top-4 right-4 bg-[#161a24] text-[#6588cb] p-3 rounded-full hover:bg-[#1f2533] transition-all shadow-lg flex items-center"
+                    title="Back to Home"
                 >
-                    <FaArrowLeft className="text-xl" />
-                    <span className="font-semibold">Back</span>
-                </button>
+                    <FaArrowLeft size={18} />
+                </Link>
                 {/* Top Section */}
                 <div className="flex flex-col items-center w-full max-w-4xl mb-8 mx-auto">
                     <h1 className="text-4xl font-bold text-[#6588cb] mb-6">Change Password</h1>
