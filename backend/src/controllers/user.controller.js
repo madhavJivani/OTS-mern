@@ -352,7 +352,7 @@ export const updateAvatar = async (req, res) => {
                 // --- > Currently we are not deleting the previous image from cloudinary, coz we need to add a check if that's the default image or not.
                 
                 // now delete the previous image from cloudinary storage
-                if (prev_img_url) {
+                if (prev_img_url && prev_img_url !== 'https://res.cloudinary.com/madhav-daiict/image/upload/v1734681924/rcdmth9309na2zivs0i9.png') {
                     const result = await deleteFromCloudinary(prev_img_url);
                     if (!result) { 
                         console.log(`Error in deleting the previous image from cloudinary: ${error.message} || from user.controller.js`);
