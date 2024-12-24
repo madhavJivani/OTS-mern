@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { FaCalendarAlt, FaArrowRight } from "react-icons/fa";
+import ReactMarkdown from "react-markdown";
 
 function formatDate(isoString) {
     const date = new Date(isoString);
@@ -49,8 +50,14 @@ const ShortNotice = ({ notice }) => {
 
                 {/* Right: Notice Details */}
                 <div className="flex-1">
-                    <h3 className="text-lg font-bold text-[#fafafa] mb-2">{notice.title}</h3>
-                    <p className="text-sm text-[#b0b5c1] mb-4">{notice.short_description}</p>
+                    {/* Title with ReactMarkdown */}
+                    <h3 className="text-lg font-bold text-[#fafafa] mb-2">
+                        <ReactMarkdown className="prose prose-invert">{notice.title}</ReactMarkdown>
+                    </h3>
+                    {/* Short Description with ReactMarkdown */}
+                    <div className="text-sm text-[#b0b5c1] mb-4">
+                        <ReactMarkdown className="prose prose-invert">{notice.short_description}</ReactMarkdown>
+                    </div>
                     <div className="flex justify-between items-center text-sm text-[#b0b5c1]">
                         <div className="flex items-center gap-2">
                             <FaCalendarAlt />

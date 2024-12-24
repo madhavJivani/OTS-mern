@@ -56,7 +56,7 @@ const EditNotice = () => {
 
                 {/* Top Section */}
                 <div className="flex flex-col items-center w-full max-w-4xl mb-8 mx-auto">
-                    <h1 className="text-4xl font-bold text-[#6588cb] mb-6">Edit Notice</h1>
+                    <h1 className="text-4xl font-bold text-[#6588cb] mb-2">Edit Notice</h1>
                 </div>
 
                 {/* Form Section */}
@@ -79,6 +79,7 @@ const EditNotice = () => {
                         {/* Short Description Field */}
                         <div>
                             <label className="block text-lg font-semibold mb-2">Short Description</label>
+                            <span className="text-sm font-bold text-[#5785ca] mb-6">You can use markdown text structure to beatify this</span>
                             <input
                                 type="text"
                                 name="short_description"
@@ -92,6 +93,7 @@ const EditNotice = () => {
                         {/* Detailed Description Field */}
                         <div>
                             <label className="block text-lg font-semibold mb-2">Detailed Description</label>
+                            <span className="text-sm font-bold text-[#5785ca] mb-6">You can use markdown text structure to beatify this</span>
                             <textarea
                                 name="detailed_description"
                                 value={detailed_description}
