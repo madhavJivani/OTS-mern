@@ -1,5 +1,5 @@
 import { User } from "../models/user.model.js";
-import { uploadToCloudinary , deleteFromCloudinary } from '../utils/cloudinary.service.js'
+import { uploadImageToCloudinary , deleteFromCloudinary } from '../utils/cloudinary.service.js'
 import { deleteFile } from '../utils/helpers.js';
 import jwt from 'jsonwebtoken';
 /**
@@ -79,7 +79,7 @@ export const registerUser = async (req, res) => {
             // ------------- remember to extarct out element from array and extarct path out of it too.
             const avatarLocalFilePath = req.files.avatar[0].path;
             try {
-                avatarResponse = await uploadToCloudinary(avatarLocalFilePath);
+                avatarResponse = await uploadImageToCloudinary(avatarLocalFilePath);
                 if (!avatarResponse) {
                     return res.status(500).json({ error: "Failed to retrieve response from Cloudinary. Please try again.", success: false });
                 }
@@ -329,7 +329,7 @@ export const updateAvatar = async (req, res) => {
             // upload the new image to cloudinary and get the url
             let avatarResponse = null;
             try {
-                avatarResponse = await uploadToCloudinary(new_image);
+                avatarResponse = await uploadImageToCloudinary(new_image);
                 if (!avatarResponse) {
                     console.log(`Error in uploading image to cloudinary: ${error.message} || from user.controller.js`);
                     return res.status(500).json({ error: "Failed to upload new avatar. Please try again.", success: false });

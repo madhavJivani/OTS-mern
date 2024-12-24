@@ -1,5 +1,5 @@
 import { Note } from "../models/note.model.js";
-import { uploadToCloudinary } from '../utils/cloudinary.service.js'
+import { uploadRawToCloudinary } from '../utils/cloudinary.service.js'
 
 export const createNote = async (req, res) => { 
     const user = req.user;
@@ -49,7 +49,7 @@ export const createNote = async (req, res) => {
             if (!materialLocalPath) { 
                 return res.status(400).json({ error: "Material not recived",success: false });
             }
-            const result = await uploadToCloudinary(materialLocalPath);
+            const result = await uploadRawToCloudinary(materialLocalPath);
             if (!result) {
                 return res.status(500).json({ error: "Error while processing your file",success: false });
             }
