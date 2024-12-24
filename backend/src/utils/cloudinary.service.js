@@ -85,17 +85,27 @@ export const uploadRawToCloudinary = async (localFilePath) => {
     }
 }
 
-export const deleteFromCloudinary = async (oldImageUrl) => {
+export const deleteFromCloudinary = async (imageUrl) => {
     try {
-        // Extracting public_id from the image URL
-        const publicId = oldImageUrl.split('/').pop().split('.')[0];
+        // Extract the public_id from the image URL
+        const urlParts = imageUrl.split('/');
+        const publicIdWithExtension = urlParts.slice(-2).join('/'); // Includes folder and file with extension
+        const publicId = publicIdWithExtension.split('.')[0]; // Remove file extension
 
-        // Directly calling destroy method which returns a promise
+        // console.log(`Deleting public_id: ${publicId}`); // For debugging
+
+        // Call Cloudinary's destroy method
         const result = await cloudinary.uploader.destroy(publicId);
+
+        if (result.result === 'ok') {
+            // console.log('Image deleted successfully:', result);
+        } else {
+            console.log('Failed to delete image. Cloudinary response:', result);
+        }
 
         return result;
     } catch (error) {
-        console.log(`Error in deleting image from cloudinary: ${error.message} || from cloudinary.service.js`);
+        console.error(`Error in deleting image from Cloudinary: ${error.message}`);
         return null;
     }
 };
