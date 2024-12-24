@@ -22,6 +22,9 @@ export const create_note = async (formData) => {
         try {
             const response = await axios.post(url, { title, description, subject, material: materialFile }, {
                 withCredentials: true,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                }
             });
             // console.log(response);
             return response.data;
@@ -42,6 +45,20 @@ export const get_notes = async () => {
         return response.data;
     } catch (error) {
         console.log("Error in get_notes:", error);
+        return error.response.data;
+    }
+}
+
+export const get_note = async (noteId) => { 
+    const url = `${server}/api/v1/notes/get-note/${noteId}`
+    try {
+        const response = await axios.get(url, {
+            withCredentials: true,
+        });
+        // console.log(response);
+        return response.data;
+    } catch (error) {
+        console.log("Error in get_note:", error);
         return error.response.data;
     }
 }
