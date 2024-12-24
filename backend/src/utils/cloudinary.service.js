@@ -84,21 +84,21 @@ export const uploadRawToCloudinary = async (localFilePath) => {
         fs.unlinkSync(localFilePath);
     }
 }
-
 export const deleteFromCloudinary = async (imageUrl) => {
     try {
         // Extract the public_id from the image URL
-        const urlParts = imageUrl.split('/');
-        const publicIdWithExtension = urlParts.slice(-2).join('/'); // Includes folder and file with extension
-        const publicId = publicIdWithExtension.split('.')[0]; // Remove file extension
+        const urlParts = imageUrl.split('/'); // Split the URL by "/"
+        const fileNameWithExtension = urlParts.pop(); // Get the last part (file name with extension)
+        const folderPath = urlParts.slice(7).join('/'); // Extract the folder structure after the 7th segment (cloudinary format)
+        const publicId = `${folderPath}/${fileNameWithExtension.split('.')[0]}`; // Combine folder path and file name without extension
 
-        // console.log(`Deleting public_id: ${publicId}`); // For debugging
+        console.log(`Deleting public_id: ${publicId}`); // For debugging
 
         // Call Cloudinary's destroy method
         const result = await cloudinary.uploader.destroy(publicId);
 
         if (result.result === 'ok') {
-            // console.log('Image deleted successfully:', result);
+            console.log('Image deleted successfully:', result);
         } else {
             console.log('Failed to delete image. Cloudinary response:', result);
         }

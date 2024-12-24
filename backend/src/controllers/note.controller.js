@@ -1,6 +1,6 @@
 import { Note } from "../models/note.model.js";
 import mongoose from "mongoose";
-import { uploadRawToCloudinary } from '../utils/cloudinary.service.js'
+import { uploadRawToCloudinary ,deleteFromCloudinary } from '../utils/cloudinary.service.js'
 
 export const createNoteWithLink = async (req, res) => { 
     const in_user = req.user;
@@ -219,6 +219,24 @@ export const getNote = async (req, res) => {
             });
         }
         return res.status(200).json({ message: "Note found successfully", success: true, note: note[0] });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: "Internal server error", success: false });
+    }
+};
+
+export const deleteNote = async (req, res) => { 
+    try {
+        const note = await Note.findByIdAndDelete(req.params.id);
+        if (!note) {
+            return res.status(404).json({ error: "Note not found", success: false });
+        }
+        const note_material_url = note.material_url;
+        if (note_material_url) {
+            await deleteFromCloudinary(note_material_url);
+        }
+
+        return res.status(200).json({ message: "Note deleted successfully", success: true });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: "Internal server error", success: false });

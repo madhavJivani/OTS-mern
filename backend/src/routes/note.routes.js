@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createNoteWithFile, createNoteWithLink, getNotes,getNotesBySubject,getNote } from '../controllers/note.controller.js';
+import { createNoteWithFile, createNoteWithLink, getNotes, getNotesBySubject, getNote, deleteNote } from '../controllers/note.controller.js';
 import { verifyJWT, verifyTeacherOrAdmin } from '../middlewares/auth.middleware.js';
 import { upload } from '../middlewares/multer.middleware.js';
 
@@ -12,6 +12,7 @@ router.route("/create-file").post(verifyJWT, verifyTeacherOrAdmin, upload.fields
 router.route("/get-notes").get(verifyJWT, getNotes);
 router.route("/get-notes/:subject").get(verifyJWT, getNotesBySubject);
 router.route("/get-note/:id").get(verifyJWT, getNote);
+router.route("/delete-note/:id").delete(verifyJWT, verifyTeacherOrAdmin, deleteNote);
 
 
 export default router;
