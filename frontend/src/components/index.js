@@ -17,6 +17,9 @@ import LongNotice from './Notice/LongNotice.jsx';
 import EditNotice from './Notice/EditNotice.jsx';
 import AddNotice from './Notice/AddNotice.jsx';
 
+import CreateNote from './Notes/CreateNote.jsx';
+import ListNotes from './Notes/ListNotes.jsx';
+
 
 export { 
     Login,
@@ -36,4 +39,6 @@ export {
     LongNotice,
     EditNotice,
     AddNotice,
+    CreateNote,
+    ListNotes
 }

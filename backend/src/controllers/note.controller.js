@@ -105,7 +105,6 @@ export const getNotes = async (req, res) => {
                     $project: {
                         title: 1,
                         description: 1,
-                        material_url: 1,
                         subject: 1,
                         createdAt: 1,
                         updatedAt: 1,
