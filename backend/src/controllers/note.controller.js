@@ -1,80 +1,84 @@
 import { Note } from "../models/note.model.js";
 import { uploadRawToCloudinary } from '../utils/cloudinary.service.js'
 
-export const createNote = async (req, res) => { 
-    const user = req.user;
-    if (!user) {
-        return res.status(401).json({ error: "Unauthorized request" , success: false });
+export const createNoteWithLink = async (req, res) => { 
+    const in_user = req.user;
+    if (!in_user) {
+        return res.status(401).json({ message: "Unauthorized request no user found" , success: false});
     }
-    const { title, description, subject, linkOption_status, linkOption_link } = req.body;
-    console.log(title, description, subject, linkOption_status, linkOption_link);
-    if (linkOption_status === null || linkOption_status === undefined) { 
-        return res.status(400).json({ error: "Link status is must" , success: false });
+    const { title, description, material_url, subject } = req.body;
+    if (!title || !description || !material_url || !subject) {
+        console.log(title, description, material_url, subject,req.body);
+        return res.status(400).json({ message: "Please fill all fields", success: false });
     }
     try {
-        if (linkOption_status === "self") {
-            // self or upload are possible values
-            if (!title || !description || !subject || !linkOption_link) {
-                return res.status(400).json({ error: "Title,Description,Subject,Link are compulsory" , success: false });
-            }
-            let note;
-            try {
-                note = new Note({
-                    title: title,
-                    description: description,
-                    subject: subject,
-                    material_url: linkOption_link,
-                    postedBy: user._id
-                });
-                await note.save();
-            } catch (error) {
-                console.log(error);
-                return res.status(500).json({ error: "Error while saving your material" , success: false });
-                
-            }
-            if(!note) {
-                return res.status(500).json({ error: "Error while saving your material or file" , success: false });
-            }
+        const newNote = new Note({
+            title: title,
+            description: description,
+            material_url: material_url,
+            subject: subject,
+            postedBy: in_user._id
+        });
+        await newNote.save();
+        return res.status(201).json({ message: "Note created successfully", success: true });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Internal server error", success: false });
+    }
+};
 
-            return res.status(201).json({ message: "Note created successfully" , success: true });
+export const createNoteWithFile = async (req, res) => {
+    const in_user = req.user;
+    if (!in_user) {
+        return res.status(401).json({ message: "Unauthorized request no user found", success: false });
+    }
+    const { title, description, subject } = req.body;
+    if (!title || !description || !subject) {
+        return res.status(400).json({ message: "Please fill all fields", success: false });
+    }
+    // first try to get the pdf or the file from user via req.files
+    // second try to upload the obtained file to cloudinary server
+    // third save the file url to the database
+    let materialLocalPath, materialCloudinaryUrl;
+    try {
+        if (!req.files || !req.files.material) {
+            console.log(req.files, req.files?.material);
+            return res.status(400).json({ message: "Please upload a file", success: false });
+        }
+        materialLocalPath = req.files.material[0].path;
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Unable to retreive file", success: false });
+    }
+
+    try {
+        if (materialLocalPath) {
+            materialCloudinaryUrl = await uploadRawToCloudinary(materialLocalPath);
         }
         else { 
-            if (!title || !description || !subject) {
-                return res.status(400).json({ error: "Title,Description,Subject are required", success: false });
-            }
-            if (!req.files || !req.files.material) {
-                return res.status(400).json({ error: "Files is required", success: false });
-            }
-            const materialLocalPath = req.files.material[0].path;
-            if (!materialLocalPath) { 
-                return res.status(400).json({ error: "Material not recived",success: false });
-            }
-            const result = await uploadRawToCloudinary(materialLocalPath);
-            if (!result) {
-                return res.status(500).json({ error: "Error while processing your file",success: false });
-            }
-            let note;
-            try {
-                note = new Note({
-                    title: title,
-                    description: description,
-                    subject: subject,
-                    material_url: result.secure_url,
-                    postedBy: user._id
-                });
-                await note.save();
-            } catch (error) {
-                console.log(error);
-                return res.status(500).json({ error: "Error while saving your material",success: false });
-            }
-            if(!note) {
-                return res.status(500).json({ error: "Error while saving your material or file",success: false });
-            }
-            return res.status(201).json({ message: "Note created successfully",success: true });
-
+            return res.status(500).json({ message: "Unable to access file", success: false });
         }
     } catch (error) {
         console.log(error);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ message: "Cloudianry Upload error", success: false });
+    }
+    try {
+        if (materialCloudinaryUrl) {
+            const newNote = new Note({
+                title: title,
+                description: description,
+                material_url: materialCloudinaryUrl.secure_url,
+                subject: subject,
+                postedBy: in_user._id
+            });
+            await newNote.save();
+            return res.status(201).json({ message: "Note created successfully", success: true });
+        }
+        else { 
+            return res.status(500).json({ message: "Unable to upload file to our servers, Please try again later !!", success: false });
+        }
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).json({ message: "Internal server error", success: false });
     }
 };
